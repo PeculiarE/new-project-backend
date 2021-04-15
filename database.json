@@ -1,0 +1,11 @@
+{
+    "pg": {
+        "driver": "pg",
+        "user": {"ENV": "DATABASE_USERNAME"},
+        "password": {"ENV": "DATABASE_PASSWORD"},
+        "host": "localhost",
+        "database": "wallet_app_db",
+        "port": "5432"
+    },
+    "sql-file" : true
+}

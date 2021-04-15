@@ -7,8 +7,8 @@ import 'regenerator-runtime/runtime';
  */
 
 import app from '../app';
-// var debug = require ('debug')('project-backend-generator:server');
 import http from 'http';
+import db from '../../db/setup';
 
 /**
  * Normalize a port into a number, string, or false.
@@ -81,8 +81,14 @@ const onListening = () => {
   const bind = typeof addr === 'string'
     ? `pipe ${addr}`
     : `port ${addr.port}`;
-  // debug(`Listening on ${bind}`);
   console.log(`Listening on ${bind}`);
+  db.connect()
+  .then(
+    console.log('Connected to the db')
+  )
+  .catch(error => {
+      console.log('ERROR:', error.message || error);
+  });
 }
 
 /**
