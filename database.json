@@ -6,5 +6,6 @@
         "host": "localhost",
         "database": "wallet_app_db",
         "port": "5432"
-    }
+    },
+    "sql-file" : true
 }

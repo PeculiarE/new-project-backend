@@ -1,5 +1,5 @@
 /* Replace with your SQL commands */
-CREATE TABLE IF NOT EXISTS users_3 (
+CREATE TABLE IF NOT EXISTS users (
   id uuid PRIMARY KEY,
   first_name VARCHAR NOT NULL,
   last_name VARCHAR NOT NULL,
