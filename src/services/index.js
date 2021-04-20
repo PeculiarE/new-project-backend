@@ -1,5 +1,5 @@
-import { getSingleUserByUsername, getSingleUserByEmail, addNewUser } from './user';
+import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus } from './user';
 
 export {
-    getSingleUserByUsername, getSingleUserByEmail, addNewUser,
+    getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus
 };

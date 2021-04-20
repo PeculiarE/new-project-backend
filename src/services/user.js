@@ -1,5 +1,5 @@
 import db from '../../db/setup';
-import { getUserByUsername, getUserByEmail, insertNewUser } from '../../db/queries/user';
+import { getUserByUsername, getUserByEmail, insertNewUser, updateUserOtp, updateUserStatus } from '../../db/queries/user';
 import { generateUUID } from '../utils';
 
 export const getSingleUserByUsername  = async (username) => db.oneOrNone(getUserByUsername, [username]);
@@ -15,3 +15,7 @@ export const addNewUser = async (data) => {
     return db.one(insertNewUser, [id, firstName, lastName, email, phoneNumber, dob, username, convertedUsername, password, otp
     ]);
 };
+
+export const updateOtpHash = async (data, email) => db.one(updateUserOtp, [data, email]);
+
+export const updateUserVerificationStatus = async (email) => db.one(updateUserStatus, [email]);

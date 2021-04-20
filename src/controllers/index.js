@@ -1,5 +1,5 @@
-import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser } from './user';
+import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser } from './user';
 
 export {
-    checkIfUsernameIsUnique, sendOtpWithSignup, registerUser,
+    checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser
 };

@@ -1,3 +1,3 @@
-import { signupSchema } from './user';
+import { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema } from './user';
 
-export default signupSchema;
+export { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema };
