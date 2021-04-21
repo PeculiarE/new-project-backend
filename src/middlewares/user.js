@@ -1,6 +1,6 @@
 import { generate } from 'generate-password';
 
-import { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema } from '../validations';
+import { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetSchema } from '../validations';
 import { getSingleUserByEmail } from '../services';
 import { hashInput, generateTokenForOtp } from '../utils';
 
@@ -134,6 +134,26 @@ export const validateOtp = (req, res, next) => {
 export const validateLogin = (req, res, next) => {
     try {
         const { error } = loginSchema.validate(req.body);
+        if (!error) {
+            return next();
+        } else {
+            return res.status(400).json({
+                status: 'Fail',
+                message: error.message,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong',
+        });
+    }
+}
+
+export const validateResetPassword = (req, res, next) => {
+    try {
+        const { error } = resetSchema.validate(req.body);
         if (!error) {
             return next();
         } else {

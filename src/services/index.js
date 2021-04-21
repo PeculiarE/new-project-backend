@@ -1,5 +1,8 @@
-import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus } from './user';
+import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
+    updateOtpPassword, updatePasswordResetStatus, updatePassword
+} from './user';
 
 export {
-    getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus
+    getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
+    updateOtpPassword, updatePasswordResetStatus, updatePassword
 };

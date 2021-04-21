@@ -22,3 +22,7 @@ export const loginSchema = Joi.object({
     email: Joi.string().trim().email().required(),
     password: Joi.string().trim().required()
 })
+
+export const resetSchema = Joi.object({
+    password: Joi.string().trim().required()
+})
