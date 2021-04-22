@@ -1,5 +1,6 @@
 import { createTransport } from 'nodemailer';
 import dotenv from "dotenv";
+import { differenceInDays, differenceInMinutes } from 'date-fns';
 
 import { hashInput, verifyInput, generateTokenForLogin } from '../utils';
 import { getSingleUserByUsername, addNewUser, updateOtpHash, updateUserVerificationStatus, getSingleUserByEmail,
@@ -171,15 +172,13 @@ export const confirmOtp = async (req, res) => {
     try {
         const { otp } = req.body;
         const { hashedOTP, email, otpHashSent } = req.userToBeVerified;
-        const otpHashSentString = JSON.stringify(otpHashSent);
-        const yearDiff = new Date().toISOString().split('T')[0].split('-')[0] - otpHashSentString.split('T')[0].split('-')[0].split('"')[1];
-        const monthDiff = new Date().toISOString().split('T')[0].split('-')[1] - otpHashSentString.split('T')[0].split('-')[1];
-        const dayDiff = new Date().toISOString().split('T')[0].split('-')[2] - otpHashSentString.split('T')[0].split('-')[2];
-        const hourDiff = JSON.stringify(new Date()).split('T')[1].split(':')[0] - otpHashSentString.split('T')[1].split(':')[0];
-        const minutesDiff = JSON.stringify(new Date()).split('T')[1].split(':')[1] - otpHashSentString.split('T')[1].split(':')[1];
-        console.log(otpHashSentString, JSON.stringify(new Date()), yearDiff, monthDiff, dayDiff, hourDiff, minutesDiff);
-        if (yearDiff < 1 && monthDiff < 1 && dayDiff < 1 && hourDiff < 1) {
-            if (minutesDiff < 5 && verifyInput(otp, hashedOTP)) {
+        const endDate = new Date();
+        const startDate = new Date(otpHashSent);
+        const daysBetween = differenceInDays(endDate, startDate);
+        const minutesBetween = differenceInMinutes(endDate, startDate);
+        console.log(startDate, endDate, daysBetween, minutesBetween);
+        if (daysBetween < 1) {
+            if (minutesBetween <= 5 && verifyInput(otp, hashedOTP)) {
                 const updatedUser = await updateUserVerificationStatus(email);
                 return res.status(201).json({
                     status: 'Success',
@@ -209,15 +208,14 @@ export const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const user = await getSingleUserByEmail(email);
-        // const { is_confirmed: isConfirmed, password_hash: passwordHash } = user;
-        if (user && user.is_confirmed === 'true' && verifyInput(password, user.password_hash)) {
-            const token = generateTokenForLogin({ email, id: user.id });
+        if (user && user.is_confirmed === true && verifyInput(password, user.password_hash)) {
+            const loginToken = generateTokenForLogin({ email, id: user.id });
             return res.status(201).json({
                 status: 'Success',
                 message: 'Login successful',
-                data: { ...user, token }
+                data: { ...user, loginToken }
             })  
-        } else if (user && user.is_confirmed === 'false') {
+        } else if (user && user.is_confirmed === false) {
             return res.status(401).json({
                 status: 'Fail',
                 message: 'Email not yet verified',
@@ -296,15 +294,13 @@ export const confirmOtpPassword = async (req, res) => {
     try {
         const { otp } = req.body;
         const { hashedOTP, email, passwordResetTokenSent, isPasswordResetConfirmed } = req.userToChangePassword;
-        const passwordResetTokenSentString = JSON.stringify(passwordResetTokenSent);
-        const yearDiff = new Date().toISOString().split('T')[0].split('-')[0] - passwordResetTokenSentString.split('T')[0].split('-')[0].split('"')[1];
-        const monthDiff = new Date().toISOString().split('T')[0].split('-')[1] - passwordResetTokenSentString.split('T')[0].split('-')[1];
-        const dayDiff = new Date().toISOString().split('T')[0].split('-')[2] - passwordResetTokenSentString.split('T')[0].split('-')[2];
-        const hourDiff = JSON.stringify(new Date()).split('T')[1].split(':')[0] - passwordResetTokenSentString.split('T')[1].split(':')[0];
-        const minutesDiff = JSON.stringify(new Date()).split('T')[1].split(':')[1] - passwordResetTokenSentString.split('T')[1].split(':')[1];
-        console.log(passwordResetTokenSentString, JSON.stringify(new Date()), yearDiff, monthDiff, dayDiff, hourDiff, minutesDiff);
-        if (yearDiff < 1 && monthDiff < 1 && dayDiff < 1 && hourDiff < 1) {
-            if (minutesDiff < 5 && verifyInput(otp, hashedOTP)) {
+        const endDate = new Date();
+        const startDate = new Date(passwordResetTokenSent);
+        const daysBetween = differenceInDays(endDate, startDate);
+        const minutesBetween = differenceInMinutes(endDate, startDate);
+        console.log(startDate, endDate, daysBetween, minutesBetween);
+        if (daysBetween < 1) {
+            if (minutesBetween <= 5 && verifyInput(otp, hashedOTP)) {
                 const updatedUser = await updatePasswordResetStatus(email, !isPasswordResetConfirmed);
                 return res.status(201).json({
                     status: 'Success',
