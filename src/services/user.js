@@ -22,7 +22,7 @@ export const updateOtpHash = async (data, email) => db.one(updateUserOtp, [data,
 
 export const updateUserVerificationStatus = async (email) => db.one(updateUserStatus, [email]);
 
-export const updateOtpPassword = async (data, email) => db.one(updateUserOtpPassword, [data, email]);
+export const updateOtpPassword = async (data, status, email) => db.one(updateUserOtpPassword, [data, status, email]);
 
 export const updatePasswordResetStatus = async (email, status) => db.one(updateUserPasswordResetStatus, [email, status]);
 

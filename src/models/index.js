@@ -1,3 +1,4 @@
 import userModel from './user';
+import walletModel from './wallet';
 
-export default userModel;
+export { userModel, walletModel };

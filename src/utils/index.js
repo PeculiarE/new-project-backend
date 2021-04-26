@@ -1,5 +1,5 @@
-import { hashInput, generateUUID, generateTokenForOtp, decodeTokenForOtp, verifyInput, generateTokenForLogin } from './helpers';
+import { hashInput, generateUUID, generateTokenForOtp, decodeToken, verifyInput, generateTokenForLogin } from './helpers';
 
 export {
-    hashInput, generateUUID, generateTokenForOtp, decodeTokenForOtp, verifyInput, generateTokenForLogin
+    hashInput, generateUUID, generateTokenForOtp, decodeToken, verifyInput, generateTokenForLogin
 };

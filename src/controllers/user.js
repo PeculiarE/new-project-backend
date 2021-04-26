@@ -33,7 +33,7 @@ export const checkIfUsernameIsUnique = async (req, res) => {
             message: 'Something went wrong!'
         })
     }
-}
+};
 
 export const sendOtpWithSignup = async (req, res, next) => {
     try {
@@ -204,12 +204,12 @@ export const confirmOtp = async (req, res) => {
     }
 };
 
-export const loginUser = async (req, res, next) => {
+export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await getSingleUserByEmail(email);
         if (user && user.is_confirmed === true && verifyInput(password, user.password_hash)) {
-            const loginToken = generateTokenForLogin({ email, id: user.id });
+            const loginToken = generateTokenForLogin({ email, userId: user.id, firstName: user.first_name });
             return res.status(201).json({
                 status: 'Success',
                 message: 'Login successful',
@@ -273,7 +273,7 @@ export const sendOtpPassword = async (req, res) => {
               });
             } else {
               console.log(info.response, 'OTP sent successfully.');
-              const updatedUser = await updateOtpPassword(req.hashedOTP, email);
+              const updatedUser = await updateOtpPassword(req.hashedOTP, false, email);
               return res.status(201).json({
                 status: 'Success',
                 message: 'OTP sent successfully.',
@@ -301,7 +301,7 @@ export const confirmOtpPassword = async (req, res) => {
         console.log(startDate, endDate, daysBetween, minutesBetween);
         if (daysBetween < 1) {
             if (minutesBetween <= 5 && verifyInput(otp, hashedOTP)) {
-                const updatedUser = await updatePasswordResetStatus(email, !isPasswordResetConfirmed);
+                const updatedUser = await updatePasswordResetStatus(email, true);
                 return res.status(201).json({
                     status: 'Success',
                     message: 'Reset password OTP code is valid',
@@ -326,7 +326,7 @@ export const confirmOtpPassword = async (req, res) => {
     }
 };
 
-export const changePassword = async (req, res, next) => {
+export const changePassword = async (req, res) => {
     try {
         const { password } = req.body;
         const { email, isPasswordResetConfirmed } = req.userToChangePassword;

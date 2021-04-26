@@ -15,7 +15,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 export const generateTokenForOtp = (data) => jwt.sign(data, jwtSecret);
 
-export const decodeTokenForOtp = (token) => jwt.verify(token, jwtSecret, (err, data) => ({err, data}));
+export const decodeToken = (token) => jwt.verify(token, jwtSecret, (err, data) => ({err, data}));
 
 export const verifyInput = (data, hashedData) => compareSync(data, hashedData);
 

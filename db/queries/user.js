@@ -44,8 +44,9 @@ export const updateUserOtpPassword = `
     update users
     set
     password_reset_token = $1,
+    is_password_reset_confirmed = $2,
     password_reset_token_sent = NOW(),
-    updated_at = NOW() where email = $2
+    updated_at = NOW() where email = $3
     returning *;
 `;
 

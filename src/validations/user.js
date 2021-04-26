@@ -12,17 +12,17 @@ export const signupSchema = Joi.object({
 
 export const sendOtpSchema = Joi.object({
     email: Joi.string().trim().email().required()
-})
+});
 
 export const confirmOtpSchema = Joi.object({
     otp: Joi.number().required()
-})
+});
 
 export const loginSchema = Joi.object({
     email: Joi.string().trim().email().required(),
     password: Joi.string().trim().required()
-})
+});
 
-export const resetSchema = Joi.object({
+export const resetPasswordSchema = Joi.object({
     password: Joi.string().trim().required()
-})
+});
