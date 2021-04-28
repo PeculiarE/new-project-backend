@@ -2,10 +2,12 @@ import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHas
     updateOtpPassword, updatePasswordResetStatus, updatePassword
 } from './user';
 
-import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin } from './wallet';
+import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
+    updateBalanceAfterDeposit, roundingUpCurrency, updateBalanceAfterTransfer,
+} from './wallet';
 
 export {
     getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
     updateOtpPassword, updatePasswordResetStatus, updatePassword, addWalletDetails, updateOtpPin, retrieveWalletByUserId,
-    updatePinResetStatus, updatePin,
+    updatePinResetStatus, updatePin, updateBalanceAfterDeposit, roundingUpCurrency, updateBalanceAfterTransfer,
 };

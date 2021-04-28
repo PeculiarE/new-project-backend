@@ -1,8 +1,27 @@
 import { generate } from 'generate-password';
 
-import { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema } from '../validations';
+import { usernameSchema, signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema } from '../validations';
 import { getSingleUserByEmail } from '../services';
 import { hashInput, generateTokenForOtp } from '../utils';
+
+export const validateUsername = (req, res, next) => {
+    try {
+        const { error } = usernameSchema.validate(req.body);
+        if (!error) {
+            return next();
+        } else {
+            return res.status(400).json({
+                status: 'Fail',
+                message: error.message,
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!',
+        });
+    }
+};
 
 export const validateSignUp = (req, res, next) => {
     try {
@@ -18,10 +37,10 @@ export const validateSignUp = (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
-}
+};
 
 export const checkIfUserAlreadyExists = async (req, res, next) => {
     try {
@@ -40,7 +59,7 @@ export const checkIfUserAlreadyExists = async (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -63,7 +82,7 @@ export const generateOTP = async (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -83,7 +102,7 @@ export const validateEmail = (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -106,7 +125,7 @@ export const checkIfEmailExists = async (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -126,7 +145,7 @@ export const validateOtp = (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -146,7 +165,7 @@ export const validateLogin = (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }
@@ -166,7 +185,7 @@ export const validateResetPassword = (req, res, next) => {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong',
+            message: 'Something went wrong!',
         });
     }
 }

@@ -37,3 +37,35 @@ export const updateWalletPin = `
     updated_at = NOW() where user_id = $3
     returning *;
 `;
+
+export const updateWalletBalanceAfterDeposit = `
+    update wallets
+    set
+    balance = $1,
+    updated_at = NOW() where user_id = $2
+    returning *;
+`;
+
+export const getBalanceFromUsername = `
+    select username, user_id, wt.id, balance from users us
+    join wallets wt on
+    wt.user_id = us.id
+    where converted_username = $1;
+`;
+
+export const updateWalletBalancesAfterTransfer = `
+    update wallets
+    set
+    balance = 
+    case user_id
+        when $1 then $2
+        when $3 then $4
+    end,
+    updated_at = 
+    case user_id
+        when $1 then NOW()
+        when $3 then NOW()
+    end
+    where user_id in ($1, $3)
+    returning user_id = $1 as sender, balance;
+`;

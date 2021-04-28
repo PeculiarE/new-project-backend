@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import { differenceInDays, differenceInMinutes } from 'date-fns';
 
 import { hashInput, verifyInput, decodeToken } from '../utils';
-import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin } from '../services';
+import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
+    updateBalanceAfterDeposit, getSingleUserByUsername, updateBalanceAfterTransfer
+} from '../services';
 
 dotenv.config();
 
@@ -150,5 +152,107 @@ export const changePin = async (req, res, next) => {
             status: 'Fail',
             message: 'Something went wrong!'
         })
+    }
+};
+
+export const fundWallet = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const updatedWallet = await updateBalanceAfterDeposit(req.realValue, userId);
+        const balance = Number((updatedWallet.balance))/100;
+        return res.status(201).json({
+            status: 'Success',
+            message: 'Wallet funded successfully!',
+            data: { ...updatedWallet, balance, amount_funded: req.realValue }
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        })  
+    }
+};
+
+export const checkIfUsernameExists = async (req, res) => {
+    try {
+        const { username } = req.body;
+        const realUsername = String(username).toLowerCase();
+        const user = await getSingleUserByUsername(realUsername);
+        if (user) {
+            const { first_name: firstName, last_name: lastName } = user;
+            const fullName = `${firstName} ${lastName}`
+            console.log(username, realUsername, fullName);
+            return res.status(201).json({
+                status: 'Success',
+                message: `Recipient '${fullName}' found`
+            })
+        } else {
+            return res.status(409).json({
+                status: 'Fail',
+                message: 'Recipient not found'
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        })
+    }
+};
+
+export const checkIfBalanceIsSufficient = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const { balance } = await retrieveWalletByUserId(userId);
+        const realBalance = balance/100;
+        console.log(req.realValue, realBalance);
+        if (req.realValue <= realBalance)
+        return res.status(201).json({
+            status: 'Success',
+            message: 'Balance is sufficient',
+            balance: realBalance
+        })
+        else {
+            return res.status(409).json({
+                status: 'Fail',
+                message: 'Insufficient balance. Please input a lower amount',
+                balance: realBalance
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        })  
+    }
+};
+
+export const transferFunds = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const data = { ...req.body, userId };
+        const updatedWallets = await updateBalanceAfterTransfer(data);
+        let senderBalance = 0;
+        updatedWallets.forEach((el) => {
+            if (el.sender === true)
+            {
+                senderBalance = el.balance
+            }
+            return senderBalance;
+        })
+        senderBalance = Number(senderBalance)/100;
+        return res.status(201).json({
+            status: 'Success',
+            message: 'Funds transferred successfully!',
+            data: { amountTransferred: req.body.amount, balance: senderBalance }
+
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        })  
     }
 };

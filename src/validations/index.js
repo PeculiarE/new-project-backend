@@ -1,5 +1,6 @@
-import { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema } from './user';
+import { usernameSchema, signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema } from './user';
 
-import pinSchema from './wallet';
+import { pinSchema, amountSchema, transferSchema } from './wallet';
 
-export { signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema, pinSchema };
+export { usernameSchema, signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema, pinSchema, amountSchema,
+transferSchema };

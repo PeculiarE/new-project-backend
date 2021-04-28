@@ -1,5 +1,9 @@
 import Joi from 'joi';
 
+export const usernameSchema = Joi.object({
+    username: Joi.string().trim().required(),
+});
+
 export const signupSchema = Joi.object({
     firstName: Joi.string().trim().required(),
     lastName: Joi.string().trim().required(),

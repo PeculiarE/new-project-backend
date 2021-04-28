@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { validateSignUp, checkIfUserAlreadyExists, generateOTP, validateEmail, checkIfEmailExists, authenticateTokenForOtp,
-    validateOtp, validateLogin, authenticateTokenForOtpPassword, validateResetPassword,
+import { validateUsername, validateSignUp, checkIfUserAlreadyExists, generateOTP, validateEmail, checkIfEmailExists,
+    authenticateTokenForOtp, validateOtp, validateLogin, authenticateTokenForOtpPassword, validateResetPassword,
 } from '../middlewares';
 
 import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser, sendOtpPassword,
@@ -15,7 +15,7 @@ import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, 
 
 const userRouter = express.Router();
 
-userRouter.post('/validate-username', checkIfUsernameIsUnique);
+userRouter.post('/validate-username', validateUsername, checkIfUsernameIsUnique);
 userRouter.post('/signup', validateSignUp, checkIfUserAlreadyExists, generateOTP, sendOtpWithSignup, registerUser);
 userRouter.post('/auth/verify-email', validateEmail, checkIfEmailExists, generateOTP, sendOtpOnly);
 userRouter.post('/auth/confirm-email', authenticateTokenForOtp, validateOtp, confirmOtp);
