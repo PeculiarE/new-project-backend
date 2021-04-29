@@ -1,6 +1,6 @@
 import db from '../../db/setup';
 import { getUserByUsername, getUserByEmail, insertNewUser, updateUserOtp, updateUserStatus,
-    updateUserOtpPassword, updateUserPasswordResetStatus, updateUserPassword
+    updateUserOtpPassword, updateUserPasswordResetStatus, updateUserPassword, getUserProfileByUserId,
 } from '../../db/queries/user';
 import { generateUUID } from '../utils';
 
@@ -26,4 +26,6 @@ export const updateOtpPassword = async (data, status, email) => db.one(updateUse
 
 export const updatePasswordResetStatus = async (email, status) => db.one(updateUserPasswordResetStatus, [email, status]);
 
-export const updatePassword = async(email, password) => db.one(updateUserPassword, [email, password]);
+export const updatePassword = async (email, password) => db.one(updateUserPassword, [email, password]);
+
+export const getUserProfile = async (userId) => db.one(getUserProfileByUserId, [userId]);

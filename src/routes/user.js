@@ -2,10 +2,11 @@ import express from 'express';
 
 import { validateUsername, validateSignUp, checkIfUserAlreadyExists, generateOTP, validateEmail, checkIfEmailExists,
     authenticateTokenForOtp, validateOtp, validateLogin, authenticateTokenForOtpPassword, validateResetPassword,
+    authenticateLoginToken
 } from '../middlewares';
 
 import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser, sendOtpPassword,
-    confirmOtpPassword, changePassword,
+    confirmOtpPassword, changePassword, retrieveUserProfile
 } from '../controllers';
 
 /* GET users listing. */
@@ -23,5 +24,6 @@ userRouter.post('/auth/login', validateLogin, loginUser);
 userRouter.post('/auth/forgot-password', validateEmail, checkIfEmailExists, generateOTP, sendOtpPassword);
 userRouter.post('/auth/confirm-reset-password-otp', authenticateTokenForOtpPassword, validateOtp, confirmOtpPassword);
 userRouter.post('/auth/reset-password', authenticateTokenForOtpPassword, validateResetPassword, changePassword);
+userRouter.get('/user', authenticateLoginToken, retrieveUserProfile)
 
 export default userRouter;

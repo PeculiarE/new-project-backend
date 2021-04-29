@@ -1,2 +1,2 @@
 /* Replace with your SQL commands */
-DROP TABLE wallets;
+DROP TABLE transaction_history;

@@ -4,7 +4,7 @@ import { differenceInDays, differenceInMinutes } from 'date-fns';
 
 import { hashInput, verifyInput, generateTokenForLogin } from '../utils';
 import { getSingleUserByUsername, addNewUser, updateOtpHash, updateUserVerificationStatus, getSingleUserByEmail,
-    updateOtpPassword, updatePasswordResetStatus, updatePassword
+    updateOtpPassword, updatePasswordResetStatus, updatePassword, getUserProfile,
 } from '../services';
 
 dotenv.config();
@@ -351,5 +351,25 @@ export const changePassword = async (req, res) => {
             status: 'Fail',
             message: 'Something went wrong!'
         })
+    }
+};
+
+export const retrieveUserProfile = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const retrievedUser = await getUserProfile(userId);
+        const newBalance = Number(retrievedUser.balance)/100;
+        const updatedPhoneNumber = `0${retrievedUser.phone_number}`
+        return res.status(200).json({
+            status: 'Success',
+            message: 'User profile fetched successfully',
+            data: { ...retrievedUser, balance: newBalance, phone_number: updatedPhoneNumber }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        }) 
     }
 };

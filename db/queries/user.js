@@ -65,3 +65,11 @@ export const updateUserPassword = `
     updated_at = NOW() where email = $1
     returning *;
 `;
+
+export const getUserProfileByUserId = `
+    select first_name, last_name, email, dob, phone_number, username, balance
+    from users us
+    join wallets wt on
+    wt.user_id = us.id
+    where us.id = $1;
+`;

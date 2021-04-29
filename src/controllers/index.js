@@ -1,12 +1,12 @@
 import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser, sendOtpPassword,
-confirmOtpPassword, changePassword } from './user';
+confirmOtpPassword, changePassword, retrieveUserProfile } from './user';
 
 import { createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, checkIfUsernameExists,
-    checkIfBalanceIsSufficient, transferFunds
+    checkIfBalanceIsSufficient, transferFunds, retrieveWalletBalance
 } from './wallet';
 
 export {
     checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser, sendOtpPassword,
     confirmOtpPassword, changePassword, createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, checkIfUsernameExists,
-    checkIfBalanceIsSufficient, transferFunds,
+    checkIfBalanceIsSufficient, transferFunds, retrieveWalletBalance, retrieveUserProfile
 };

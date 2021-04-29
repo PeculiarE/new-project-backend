@@ -4,7 +4,7 @@ import { differenceInDays, differenceInMinutes } from 'date-fns';
 
 import { hashInput, verifyInput, decodeToken } from '../utils';
 import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
-    updateBalanceAfterDeposit, getSingleUserByUsername, updateBalanceAfterTransfer
+    updateBalanceAfterDeposit, getSingleUserByUsername, updateBalanceAfterTransfer, getWalletBalance,
 } from '../services';
 
 dotenv.config();
@@ -166,6 +166,7 @@ export const fundWallet = async (req, res) => {
             data: { ...updatedWallet, balance, amount_funded: req.realValue }
         })
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             status: 'Fail',
             message: 'Something went wrong!'
@@ -256,3 +257,22 @@ export const transferFunds = async (req, res) => {
         })  
     }
 };
+
+export const retrieveWalletBalance = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const { balance } = await getWalletBalance(userId);
+        const newBalance = Number(balance)/100;
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Wallet balance fetched successfully!',
+            data: { 'balance': newBalance }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        }) 
+    }
+}

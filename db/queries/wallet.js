@@ -69,3 +69,8 @@ export const updateWalletBalancesAfterTransfer = `
     where user_id in ($1, $3)
     returning user_id = $1 as sender, balance;
 `;
+
+export const getWalletBalanceByUserId = `
+    select balance from wallets
+    where user_id = $1; 
+`;
