@@ -154,7 +154,7 @@ export const sendOtpOnly = async (req, res) => {
               const updatedUser = await updateOtpHash(req.hashedOTP, email);
               return res.status(201).json({
                 status: 'Success',
-                message: 'OTP sent successfully.',
+                message: 'An OTP has been sent to your email for verification',
                 data: updatedUser
               });
             }
@@ -276,7 +276,7 @@ export const sendOtpPassword = async (req, res) => {
               const updatedUser = await updateOtpPassword(req.hashedOTP, false, email);
               return res.status(201).json({
                 status: 'Success',
-                message: 'OTP sent successfully.',
+                message: 'An OTP has been sent to your email for password reset',
                 data: updatedUser
               });
             }

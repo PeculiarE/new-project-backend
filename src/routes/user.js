@@ -24,6 +24,6 @@ userRouter.post('/auth/login', validateLogin, loginUser);
 userRouter.post('/auth/forgot-password', validateEmail, checkIfEmailExists, generateOTP, sendOtpPassword);
 userRouter.post('/auth/confirm-reset-password-otp', authenticateTokenForOtpPassword, validateOtp, confirmOtpPassword);
 userRouter.post('/auth/reset-password', authenticateTokenForOtpPassword, validateResetPassword, changePassword);
-userRouter.get('/user', authenticateLoginToken, retrieveUserProfile)
+userRouter.get('/auth/user', authenticateLoginToken, retrieveUserProfile)
 
 export default userRouter;
