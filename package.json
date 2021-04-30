@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "babel-node ./src/bin/www.js",
+    "start": "babel-node ./src/bin/www.js",
     "clean": "rm -rf dist",
     "build": "npm run clean && babel ./src --out-dir dist --copy-files",
     "prod": "node ./dist/bin/www.js"
