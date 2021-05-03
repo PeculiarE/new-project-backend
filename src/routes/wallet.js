@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { authenticateLoginToken, validatePin, generatePinOTP, validateOtp, validateAmount, convertCurrency,
-    validateTransfer, validateUsername, checkIfPinIsCorrect
+    validateTransfer, validateRecipientUsername, checkIfPinIsCorrect
 } from '../middlewares';
 
 import { createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, checkIfUsernameExists, checkIfBalanceIsSufficient,
@@ -22,7 +22,7 @@ walletRouter.post('/forgot-pin', generatePinOTP, sendPinOTP);
 walletRouter.post('/confirm-reset-pin-otp', validateOtp, confirmPinOTP);
 walletRouter.post('/reset-pin', validatePin, changePin);
 walletRouter.post('/deposit', validateAmount, convertCurrency, fundWallet);
-walletRouter.post('/validate-receiver', validateUsername, checkIfUsernameExists);
+walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfUsernameExists);
 walletRouter.post('/validate-amount', validateAmount, convertCurrency, checkIfBalanceIsSufficient);
 walletRouter.post('/transfer', validateTransfer, checkIfPinIsCorrect, transferFunds);
 walletRouter.get('/balance', retrieveWalletBalance)

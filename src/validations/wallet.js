@@ -4,6 +4,11 @@ export const pinSchema = Joi.object({
     pin: Joi.number().required()
 });
 
+export const recipientUsernameSchema = Joi.object({
+    recipientUsername: Joi.string().trim().required(),
+});
+
+
 export const amountSchema = Joi.object({
     // amount: Joi.number().precision(3).required(),
     amount: Joi.number().precision(2).required()

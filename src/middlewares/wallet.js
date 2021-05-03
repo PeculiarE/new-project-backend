@@ -1,6 +1,6 @@
 import { generate } from 'generate-password';
 
-import { pinSchema, amountSchema, transferSchema } from '../validations';
+import { pinSchema, recipientUsernameSchema, amountSchema, transferSchema } from '../validations';
 import { hashInput, generateTokenForOtp, verifyInput } from '../utils';
 // import { roundingUpCurrency } from '../services';
 import { retrieveWalletByUserId } from '../services';
@@ -43,6 +43,25 @@ export const generatePinOTP = async (req, res, next) => {
         return res.status(500).json({
             status: 'Fail',
             message: 'Something went wrong',
+        });
+    }
+};
+
+export const validateRecipientUsername = async (req, res, next) => {
+    try {
+        const { error } = recipientUsernameSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                status: 'Fail',
+                message: error.message
+            });
+        }
+        return next();
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong'
         });
     }
 };

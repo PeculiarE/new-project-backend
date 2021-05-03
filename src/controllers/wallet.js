@@ -73,7 +73,7 @@ export const sendPinOTP = async (req, res) => {
               const updatedWallet = await updateOtpPin(req.hashedOTP, false, userId);
               return res.status(201).json({
                 status: 'Success',
-                message: 'OTP sent successfully.',
+                message: 'An OTP has been sent to your email for PIN reset',
                 data: updatedWallet
               });
             }
@@ -176,8 +176,8 @@ export const fundWallet = async (req, res) => {
 
 export const checkIfUsernameExists = async (req, res) => {
     try {
-        const { username } = req.body;
-        const realUsername = String(username).toLowerCase();
+        const { recipientUsername } = req.body;
+        const realUsername = String(recipientUsername).toLowerCase();
         const user = await getSingleUserByUsername(realUsername);
         if (user) {
             const { first_name: firstName, last_name: lastName } = user;
