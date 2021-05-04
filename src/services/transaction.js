@@ -2,6 +2,7 @@ import db from '../../db/setup';
 import { insertSingleTransaction, insertMultipleTransactions, getTransactionHistoryByUserId,
     insertFirstSingleTransactionHistory, updateSubsequentSingleTransactionsHistory,
     insertFirstMultipleTransactionsHistory, updateSubsequentMultipleTransactionsHistory,
+    getTransactionHistoryArrayByUserId,
 } from '../../db/queries/transaction';
 import { generateUUID } from '../utils';
 
@@ -47,3 +48,7 @@ export const addSubsequentMultipleTransactionsHistory = async (data) => {
         senderUserId, senderTransactionId, recipientUserId, recipientTransactionId
     ]);
 };
+
+export const getHistoryArrayByUserId = async (userId) => {
+    return db.manyOrNone(getTransactionHistoryArrayByUserId, [userId]);
+}

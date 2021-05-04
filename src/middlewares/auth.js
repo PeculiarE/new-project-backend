@@ -83,8 +83,9 @@ export const authenticateLoginToken = (req, res, next) => {
       req.loggedInUser = data;
       return next();
     } catch (error) {
-      return res
-        .status(500)
-        .json({ status: 'Fail', message: 'Something went wrong' });
+        console.log(error);
+        return res
+          .status(500)
+          .json({ status: 'Fail', message: 'Something went wrong' });
     }
   };

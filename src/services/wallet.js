@@ -8,7 +8,7 @@ import { generateUUID } from '../utils';
 
 import { addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory,
     getHistoryByUserId, addSubsequentSingleTransactionsHistory, addFirstMultipleTransactionsHistory,
-    addSubsequentMultipleTransactionsHistory,
+    addSubsequentMultipleTransactionsHistory
 } from './transaction';
 
 export const addWalletDetails = async (data) => {
@@ -31,11 +31,15 @@ export const updateBalanceAfterDeposit = async (data, userId) => {
     const newBalance = Number(balance) + incomingFund;
     console.log(balance, incomingFund, newBalance);
     const transactionData = { walletId: id, amount: incomingFund };
+    console.log(transactionData);
     const { id: transactionId } = await addSingleTransaction(transactionData);
+    console.log(transactionId);
     const transactionHistoryRow = await getHistoryByUserId(userId);
+    console.log(transactionHistoryRow);
     if (!transactionHistoryRow) {
         const transactionHistoryData = { userId, transactionId };
-        await addFirstSingleTransactionHistory(transactionHistoryData);
+        console.log(userId, transactionHistoryData);
+        await addFirstSingleTransactionHistory(transactionId, userId);
     } else {
         await addSubsequentSingleTransactionsHistory(transactionId, userId);
     }

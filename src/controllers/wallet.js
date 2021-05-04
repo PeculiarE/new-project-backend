@@ -5,6 +5,7 @@ import { differenceInDays, differenceInMinutes } from 'date-fns';
 import { hashInput, verifyInput, decodeToken } from '../utils';
 import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
     updateBalanceAfterDeposit, getSingleUserByUsername, updateBalanceAfterTransfer, getWalletBalance,
+    getHistoryArrayByUserId
 } from '../services';
 
 dotenv.config();
@@ -182,7 +183,7 @@ export const checkIfUsernameExists = async (req, res) => {
         if (user) {
             const { first_name: firstName, last_name: lastName } = user;
             const fullName = `${firstName} ${lastName}`
-            console.log(username, realUsername, fullName);
+            console.log(recipientUsername, realUsername, fullName);
             return res.status(201).json({
                 status: 'Success',
                 message: `Recipient '${fullName}' found`
@@ -268,6 +269,34 @@ export const retrieveWalletBalance = async (req, res) => {
             message: 'Wallet balance fetched successfully!',
             data: { 'balance': newBalance }
         })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        }) 
+    }
+};
+
+export const retrieveTransactionHistory = async (req, res) => {
+    try {
+        const { userId } = req.loggedInUser;
+        const retrievedHistory = await getHistoryArrayByUserId(userId);
+        if(!retrievedHistory) {
+            return res.status(404).json({
+                status: 'Fail',
+                message: 'User has not made any transactions'
+            })
+        } else {
+            retrievedHistory.forEach((el) => {
+                el.amount = Number(el.amount)/100;
+            });
+            return res.status(200).json({
+                status: 'Success',
+                message: 'Transaction history fetched successfully!',
+                data: retrievedHistory
+            })
+        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({

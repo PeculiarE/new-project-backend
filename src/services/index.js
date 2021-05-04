@@ -1,4 +1,3 @@
-import { addSubsequentMultipleTransactionsHistory, addSubsequentSingleTransactionsHistory } from './transaction';
 import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
     updateOtpPassword, updatePasswordResetStatus, updatePassword, getUserProfile
 } from './user';
@@ -7,9 +6,11 @@ import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetS
     updateBalanceAfterDeposit, roundingUpCurrency, updateBalanceAfterTransfer, getWalletBalance
 } from './wallet';
 
-// import { addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory, getHistoryByUserId,
+import { 
+    // addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory, getHistoryByUserId,
     // addSubsequentSingleTransactionsHistory, addSubsequentMultipleTransactionsHistory,
-// } from './transaction';
+    getHistoryArrayByUserId,
+} from './transaction';
 
 export {
     getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
@@ -17,5 +18,5 @@ export {
     updatePinResetStatus, updatePin, updateBalanceAfterDeposit, roundingUpCurrency, updateBalanceAfterTransfer,
     // addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory, getHistoryByUserId,
     // addSubsequentSingleTransactionsHistory, addSubsequentMultipleTransactionsHistory,
-    getWalletBalance, getUserProfile,
+    getWalletBalance, getUserProfile, getHistoryArrayByUserId,
 };

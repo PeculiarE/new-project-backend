@@ -70,3 +70,11 @@ export const updateSubsequentMultipleTransactionsHistory = `
     where user_id in ($1, $3)
     returning *;
 `;
+
+export const getTransactionHistoryArrayByUserId = `
+    SELECT t.id as transaction_id, transaction_type, t.updated_at as transaction_date, amount
+    FROM transactions t
+    JOIN transaction_history th
+    ON t.id = ANY(th.transactions)
+    where user_id = $1; 
+`;

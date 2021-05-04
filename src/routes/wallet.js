@@ -5,7 +5,7 @@ import { authenticateLoginToken, validatePin, generatePinOTP, validateOtp, valid
 } from '../middlewares';
 
 import { createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, checkIfUsernameExists, checkIfBalanceIsSufficient,
-    transferFunds, retrieveWalletBalance,
+    transferFunds, retrieveWalletBalance, retrieveTransactionHistory
 } from '../controllers';
 
 /* GET users listing. */
@@ -25,6 +25,7 @@ walletRouter.post('/deposit', validateAmount, convertCurrency, fundWallet);
 walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfUsernameExists);
 walletRouter.post('/validate-amount', validateAmount, convertCurrency, checkIfBalanceIsSufficient);
 walletRouter.post('/transfer', validateTransfer, checkIfPinIsCorrect, transferFunds);
-walletRouter.get('/balance', retrieveWalletBalance)
+walletRouter.get('/balance', retrieveWalletBalance);
+walletRouter.get('/transaction-history', retrieveTransactionHistory);
 
 export default walletRouter;
