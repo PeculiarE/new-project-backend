@@ -1,6 +1,7 @@
 import { createTransport } from 'nodemailer';
 import dotenv from "dotenv";
 import { differenceInDays, differenceInMinutes } from 'date-fns';
+import sgMail from '@sendgrid/mail';
 
 import { hashInput, verifyInput, decodeToken } from '../utils';
 import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
@@ -37,47 +38,80 @@ export const sendPinOTP = async (req, res) => {
     try {
         const { email, userId, firstName } = req.loggedInUser;
         console.log(email, firstName);
-        const transporter = createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                type: 'OAuth2',
-                user: process.env.EMAIL_SENDER,
-                clientId: process.env.CLIENT_ID,
-                clientSecret: process.env.CLIENT_SECRET,
-                refreshToken: process.env.REFRESH_TOKEN,
-                accessToken: process.env.ACCESS_TOKEN,
-                expires: 3599
-        }});
-        const mailOptions = {
-            from: `"Jupyter Wallet Admin" <${process.env.EMAIL_SENDER}>`,
+        // using SendGrid
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        const msg = {
             to: email,
+            from: `Jupyter Wallet Admin <${process.env.EMAIL_SENDER_TWO}>`,
             subject: 'PIN Reset',
             text: `Dear ${firstName},
             Kindly use the One-Time-Password (OTP) below to reset your pin.
             ${req.OTP}`,
             html: `<h2> Dear ${firstName}, </h2>
-            <p> Kindly use the One-Time-Password (OTP) below to reset your pin. <p>
+            <p> Kindly use the One-Time-Password (OTP) below to reset your pin. </p>
             <h1>${req.OTP}</h1>`,
-        };
+        }
+        sgMail
+            .send(msg)
+            .then( async (response) => {
+                console.log(response[0].statusCode)
+                console.log(response[0].headers)
+                const updatedWallet = await updateOtpPin(req.hashedOTP, false, userId);
+                return res.status(201).json({
+                    status: 'Success',
+                    message: 'An OTP has been sent to your email for PIN reset',
+                    data: updatedWallet
+                });
+            }).catch((error) => {
+                console.log(error);
+                console.error(error);
+                return res.status(400).json({
+                    status: 'Fail',
+                    message: error.message,
+            });
         
-        transporter.sendMail(mailOptions, async (error, info) => {
-            if (error) {
-              console.log(error);
-              return res.status(400).json({
-                status: 'Fail',
-                message: error.message,
-              });
-            } else {
-              console.log(info.response, 'OTP sent successfully.');
-              const updatedWallet = await updateOtpPin(req.hashedOTP, false, userId);
-              return res.status(201).json({
-                status: 'Success',
-                message: 'An OTP has been sent to your email for PIN reset',
-                data: updatedWallet
-              });
-            }
+        // Using Nodemailer
+        // const transporter = createTransport({
+        //     host: 'smtp.gmail.com',
+        //     port: 465,
+        //     secure: true,
+        //     auth: {
+        //         type: 'OAuth2',
+        //         user: process.env.EMAIL_SENDER,
+        //         clientId: process.env.CLIENT_ID,
+        //         clientSecret: process.env.CLIENT_SECRET,
+        //         refreshToken: process.env.REFRESH_TOKEN,
+        //         accessToken: process.env.ACCESS_TOKEN,
+        //         expires: 3599
+        // }});
+        // const mailOptions = {
+        //     from: `"Jupyter Wallet Admin" <${process.env.EMAIL_SENDER}>`,
+        //     to: email,
+        //     subject: 'PIN Reset',
+        //     text: `Dear ${firstName},
+        //     Kindly use the One-Time-Password (OTP) below to reset your pin.
+        //     ${req.OTP}`,
+        //     html: `<h2> Dear ${firstName}, </h2>
+        //     <p> Kindly use the One-Time-Password (OTP) below to reset your pin. <p>
+        //     <h1>${req.OTP}</h1>`,
+        // };
+        
+        // transporter.sendMail(mailOptions, async (error, info) => {
+        //     if (error) {
+        //       console.log(error);
+        //       return res.status(400).json({
+        //         status: 'Fail',
+        //         message: error.message,
+        //       });
+        //     } else {
+        //       console.log(info.response, 'OTP sent successfully.');
+        //       const updatedWallet = await updateOtpPin(req.hashedOTP, false, userId);
+        //       return res.status(201).json({
+        //         status: 'Success',
+        //         message: 'An OTP has been sent to your email for PIN reset',
+        //         data: updatedWallet
+        //       });
+        //     }
         });
     } catch (error) {
         console.log(error);

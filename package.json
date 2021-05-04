@@ -10,6 +10,7 @@
     "prod": "node ./dist/bin/www.js"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.4.2",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
     "cookie-parser": "~1.4.4",
