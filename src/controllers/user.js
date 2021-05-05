@@ -1,4 +1,4 @@
-import { createTransport } from 'nodemailer';
+// import { createTransport } from 'nodemailer';
 import dotenv from "dotenv";
 import { differenceInDays, differenceInMinutes } from 'date-fns';
 import sgMail from '@sendgrid/mail';
