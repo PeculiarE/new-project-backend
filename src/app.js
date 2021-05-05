@@ -2,18 +2,24 @@ import createError from 'http-errors';
 import express, { json, urlencoded } from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import cors from 'cors';
 
-import indexRouter from '#routes/index';
-import usersRouter from '#routes/users';
+// import indexRouter from '#routes/index';
+// import userRouter from '#routes/user';
+import router from './routes';
 const app = express();
 
 app.use(logger('dev'));
+app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.get('/', (req, res) => res.status(200).json({ message: 'Welcome to our new project' }));
+
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
+app.use(router);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -28,7 +34,10 @@ app.use((err, req, res, next) => {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    message: err.message,
+    error: err
+  });
 });
 
 export default app;

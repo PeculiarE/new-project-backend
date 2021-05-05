@@ -3,9 +3,9 @@
         "driver": "pg",
         "user": {"ENV": "DATABASE_USERNAME"},
         "password": {"ENV": "DATABASE_PASSWORD"},
-        "host": "localhost",
-        "database": "wallet_app_db",
-        "port": "5432"
+        "host": {"ENV": "DATABASE_HOST"},
+        "database": {"ENV": "DATABASE_NAME"},
+        "port": {"ENV": "DATABASE_PORT"}
     },
     "sql-file" : true
 }
