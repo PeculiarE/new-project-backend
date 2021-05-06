@@ -10,13 +10,11 @@ export const recipientUsernameSchema = Joi.object({
 
 
 export const amountSchema = Joi.object({
-    // amount: Joi.number().precision(3).required(),
     amount: Joi.number().precision(2).required()
 })
 
 export const transferSchema = Joi.object({
     recipientUsername: Joi.string().trim().required(),
     amount: Joi.number().precision(2).required(),
-    // amount: Joi.number().precision(3).required(),
     pin: Joi.number().required(),
 });

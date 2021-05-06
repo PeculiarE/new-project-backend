@@ -15,17 +15,17 @@ import { createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, 
 
 const walletRouter = express.Router();
 
-walletRouter.use(authenticateLoginToken);
+// walletRouter.use(authenticateLoginToken);
 
-walletRouter.post('/create-pin', validatePin, createWalletWithPin);
-walletRouter.post('/forgot-pin', generatePinOTP, sendPinOTP);
-walletRouter.post('/confirm-reset-pin-otp', validateOtp, confirmPinOTP);
-walletRouter.post('/reset-pin', validatePin, changePin);
-walletRouter.post('/deposit', validateAmount, convertCurrency, fundWallet);
-walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfUsernameExists);
-walletRouter.post('/validate-amount', validateAmount, convertCurrency, checkIfBalanceIsSufficient);
-walletRouter.post('/transfer', validateTransfer, checkIfPinIsCorrect, transferFunds);
-walletRouter.get('/balance', retrieveWalletBalance);
-walletRouter.get('/transaction-history', retrieveTransactionHistory);
+// walletRouter.post('/create-pin', validatePin, createWalletWithPin);
+// walletRouter.post('/forgot-pin', generatePinOTP, sendPinOTP);
+// walletRouter.post('/confirm-reset-pin-otp', validateOtp, confirmPinOTP);
+// walletRouter.post('/reset-pin', validatePin, changePin);
+// walletRouter.post('/deposit', validateAmount, convertCurrency, fundWallet);
+// walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfUsernameExists);
+// walletRouter.post('/validate-amount', validateAmount, convertCurrency, checkIfBalanceIsSufficient);
+// walletRouter.post('/transfer', validateTransfer, checkIfPinIsCorrect, transferFunds);
+// walletRouter.get('/balance', retrieveWalletBalance);
+// walletRouter.get('/transaction-history', retrieveTransactionHistory);
 
 export default walletRouter;

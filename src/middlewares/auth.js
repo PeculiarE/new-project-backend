@@ -1,17 +1,18 @@
-import { decodeToken } from '../utils';
-import { getSingleUserByEmail } from '../services';
+import helperFunctions from '../utils';
+import { userServices } from '../services';
 
-export const authenticateTokenForOtp = async (req, res, next) => {
+const { decodeToken } = helperFunctions;
+const  { getSingleUserByEmail } = userServices;
+
+export const authenticateOtpToken = async (req, res, next) => {
     try {
         const { authorization } = req.headers;
-        console.log(authorization);
         const token = authorization.split(' ')[1];
         const { err, data } = decodeToken(token);
         if (err) {
-            console.log(err);
             return res
                 .status(401)
-                .json({ status: 'Fail', message: err });
+                .json({ status: 'Fail', message: 'OTP has expired' });
         } else {
             const { email } = data;
             const user = await getSingleUserByEmail(email);
@@ -20,9 +21,7 @@ export const authenticateTokenForOtp = async (req, res, next) => {
                 .status(401)
                 .json({ status: 'Fail', message: 'User no longer exists!' });
             }
-            const otpHashSent = user.otp_hash_sent;
-            req.userToBeVerified = { ...data, otpHashSent };
-            console.log(req.userToBeVerified);
+            req.userToBeVerified = user;
             return next();
         }
     } catch (error) {
@@ -34,7 +33,7 @@ export const authenticateTokenForOtp = async (req, res, next) => {
     }
 };
 
-export const authenticateTokenForPassword = async (req, res, next) => {
+export const authenticatePasswordToken = async (req, res, next) => {
     try {
         const tokenObj = req.params;
         console.log(tokenObj);

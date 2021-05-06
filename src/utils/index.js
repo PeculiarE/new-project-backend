@@ -1,7 +1,3 @@
-import { hashInput, generateUUID, generateTokenForOtp, decodeToken, verifyInput, 
-   generateTokenForPassword, generateTokenForLogin } from './helpers';
+import * as helperFunctions from './helpers';
 
-export {
-    hashInput, generateUUID, generateTokenForOtp, decodeToken, verifyInput, 
-    generateTokenForPassword, generateTokenForLogin
-};
+export default helperFunctions;

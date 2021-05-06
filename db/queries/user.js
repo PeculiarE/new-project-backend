@@ -19,17 +19,18 @@ export const insertNewUser = `
         username,
         converted_username,
         password_hash,
-        otp_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        returning *;
+        otp_hash,
+        confirmation_token) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        returning id, first_name, last_name, email, confirmation_token, is_confirmed;
 `;
 
 export const updateUserOtp = `
     update users
     set
     otp_hash = $1,
-    otp_hash_sent = NOW(),
-    updated_at = NOW() where email = $2
-    returning *;
+    confirmation_token = $2,
+    updated_at = NOW() where email = $3
+    returning id, first_name, last_name, email, confirmation_token, is_confirmed;
 `;
 
 export const updateUserStatus = `
@@ -37,23 +38,21 @@ export const updateUserStatus = `
     set
     is_confirmed = true,
     updated_at = NOW() where email = $1
-    returning *;
+    returning id, first_name, last_name, email, is_confirmed;;
 `;
 
 export const updateUserPasswordResetToken = `
     update users
     set
     password_reset_token = $1,
-    updated_at = NOW() where email = $2
-    returning *;
+    updated_at = NOW() where email = $2;
 `;
 
 export const updateUserPassword = `
     update users
     set
-    password_hash = $2,
-    updated_at = NOW() where email = $1
-    returning *;
+    password_hash = $1,
+    updated_at = NOW() where email = $2;
 `;
 
 export const getUserProfileByUserId = `
