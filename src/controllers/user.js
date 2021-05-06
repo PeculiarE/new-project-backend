@@ -1,11 +1,10 @@
-import { createTransport } from 'nodemailer';
 import dotenv from "dotenv";
 import { differenceInDays, differenceInMinutes } from 'date-fns';
 import sgMail from '@sendgrid/mail';
 
 import { hashInput, verifyInput, generateTokenForLogin } from '../utils';
 import { getSingleUserByUsername, addNewUser, updateOtpHash, updateUserVerificationStatus, getSingleUserByEmail,
-    updateOtpPassword, updatePasswordResetStatus, updatePassword, getUserProfile,
+    updatePasswordResetToken, updatePassword, getUserProfile,
 } from '../services';
 
 dotenv.config();
@@ -40,7 +39,6 @@ export const sendOtpWithSignup = async (req, res, next) => {
     try {
         const { email, firstName } = req.body;
         console.log(email);
-        // using SendGrid
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         const msg = {
             to: email,
@@ -68,46 +66,6 @@ export const sendOtpWithSignup = async (req, res, next) => {
                     status: 'Fail',
                     message: error.message,
             });
-        
-        // using Nodemailer
-        // const transporter = createTransport({
-        //     host: 'smtp.gmail.com',
-        //     port: 465,
-        //     secure: true,
-        //     auth: {
-        //         type: 'OAuth2',
-        //         user: process.env.EMAIL_SENDER,
-        //         clientId: process.env.CLIENT_ID,
-        //         clientSecret: process.env.CLIENT_SECRET,
-        //         refreshToken: process.env.REFRESH_TOKEN,
-        //         accessToken: process.env.ACCESS_TOKEN,
-        //         expires: 3599
-        // }});
-        // const mailOptions = {
-        //     from: `"Jupyter Wallet Admin" <${process.env.EMAIL_SENDER}>`,
-        //     to: email,
-        //     subject: 'Email Verification',
-        //     text: `Dear ${firstName},
-        //     Thank you for signing up to our Wallet App.
-        //     Kindly use the One-Time-Password (OTP) below to verify your email address.
-        //     ${req.OTP}`,
-        //     html: `<h2> Dear ${firstName}, </h2>
-        //     <p> Thank you for signing up to our Wallet App. </p>
-        //     <p> Kindly use the One-Time-Password (OTP) below to verify your email address. </p>
-        //     <h1>${req.OTP}</h1>`,
-        // };
-        
-        // transporter.sendMail(mailOptions, (error, info) => {
-        //     if (error) {
-        //       console.log(error);
-        //       return res.status(400).json({
-        //         status: 'Fail',
-        //         message: error.message,
-        //       });
-        //     } else {
-        //       console.log(info.response, 'OTP sent successfully.');
-        //       return next();
-        //     }
         });
     } catch (error) {
         console.log(error);
@@ -146,7 +104,6 @@ export const sendOtpOnly = async (req, res) => {
     try {
         const { email, first_name: firstName } = req.user;
         console.log(email, firstName);
-        // using SendGrid
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         const msg = {
             to: email,
@@ -179,51 +136,6 @@ export const sendOtpOnly = async (req, res) => {
                     status: 'Fail',
                     message: error.message,
             });
-        
-        // Using NodeMailer
-        // const transporter = createTransport({
-        //     host: 'smtp.gmail.com',
-        //     port: 465,
-        //     secure: true,
-        //     auth: {
-        //         type: 'OAuth2',
-        //         user: process.env.EMAIL_SENDER,
-        //         clientId: process.env.CLIENT_ID,
-        //         clientSecret: process.env.CLIENT_SECRET,
-        //         refreshToken: process.env.REFRESH_TOKEN,
-        //         accessToken: process.env.ACCESS_TOKEN,
-        //         expires: 3599
-        // }});
-        // const mailOptions = {
-        //     from: `"Jupyter Wallet Admin" <${process.env.EMAIL_SENDER}>`,
-        //     to: email,
-        //     subject: 'Email Verification',
-        //     text: `Dear ${firstName},
-        //     Thank you for signing up to our Wallet App.
-        //     Kindly use the One-Time-Password (OTP) below to verify your email address.
-        //     ${req.OTP}`,
-        //     html: `<h2> Dear ${firstName}, </h2>
-        //     <p> Thank you for signing up to our Wallet App. <p>
-        //     <p> Kindly use the One-Time-Password (OTP) below to verify your email address. </p>
-        //     <h1>${req.OTP}</h1>`,
-        // };
-        
-        // transporter.sendMail(mailOptions, async (error, info) => {
-        //     if (error) {
-        //       console.log(error);
-        //       return res.status(400).json({
-        //         status: 'Fail',
-        //         message: error.message,
-        //       });
-        //     } else {
-        //       console.log(info.response, 'OTP sent successfully.');
-        //       const updatedUser = await updateOtpHash(req.hashedOTP, email);
-        //       return res.status(201).json({
-        //         status: 'Success',
-        //         message: 'An OTP has been sent to your email for verification',
-        //         data: updatedUser
-        //       });
-        //     }
         });
     } catch (error) {
         console.log(error);
@@ -301,32 +213,37 @@ export const loginUser = async (req, res) => {
     }
 };
 
-export const sendOtpPassword = async (req, res) => {
+export const sendPasswordResetLink = async (req, res) => {
     try {
         const { email, first_name: firstName } = req.user;
         console.log(email, firstName);
-        // Using SendGrid
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         const msg = {
             to: email,
             from: `Jupyter Wallet Admin <${process.env.EMAIL_SENDER_TWO}>`,
             subject: 'Password Reset',
             text: `Dear ${firstName},
-            Kindly use the One-Time-Password (OTP) below to reset your password.
-            ${req.OTP}`,
+            Kindly click on the button below to reset your password.
+            http://localhost:8080/resetForm/${req.passwordToken}`,
             html: `<h2> Dear ${firstName}, </h2>
-            <p> Kindly use the One-Time-Password (OTP) below to reset your password. </p>
-            <h1>${req.OTP}</h1>`,
+            <p> Kindly click on the button below to reset your password. </p>
+            <br>
+            <a href="http://localhost:8080/resetForm/${req.passwordToken}"
+            target="_blank"
+            style="background-color:#1F6AEC; color:white; cursor:pointer;
+            padding:10px; border:1pxsolid; text-decoration:none; border-radius:4px">
+            Reset My Password
+            </a>`,
         }
         sgMail
             .send(msg)
             .then( async (response) => {
                 console.log(response[0].statusCode)
                 console.log(response[0].headers)
-                const updatedUser = await updateOtpPassword(req.hashedOTP, false, email);
+                const updatedUser = await updatePasswordResetToken(req.passwordToken, email);
                 return res.status(201).json({
                     status: 'Success',
-                    message: 'An OTP has been sent to your email for password reset',
+                    message: 'A link has been sent to your email for password reset',
                     data: updatedUser
                 });
             }).catch((error) => {
@@ -336,86 +253,7 @@ export const sendOtpPassword = async (req, res) => {
                     status: 'Fail',
                     message: error.message,
             });
-
-        // Using NodeMailer
-        // const transporter = createTransport({
-        //     host: 'smtp.gmail.com',
-        //     port: 465,
-        //     secure: true,
-        //     auth: {
-        //         type: 'OAuth2',
-        //         user: process.env.EMAIL_SENDER,
-        //         clientId: process.env.CLIENT_ID,
-        //         clientSecret: process.env.CLIENT_SECRET,
-        //         refreshToken: process.env.REFRESH_TOKEN,
-        //         accessToken: process.env.ACCESS_TOKEN,
-        //         expires: 3599
-        // }});
-        // const mailOptions = {
-        //     from: `"Jupyter Wallet Admin" <${process.env.EMAIL_SENDER}>`,
-        //     to: email,
-        //     subject: 'Password Reset',
-        //     text: `Dear ${firstName},
-        //     Kindly use the One-Time-Password (OTP) below to reset your password.
-        //     ${req.OTP}`,
-        //     html: `<h2> Dear ${firstName}, </h2>
-        //     <p> Kindly use the One-Time-Password (OTP) below to reset your password. </p>
-        //     <h1>${req.OTP}</h1>`,
-        // };
-        
-        // transporter.sendMail(mailOptions, async (error, info) => {
-        //     if (error) {
-        //       console.log(error);
-        //       return res.status(400).json({
-        //         status: 'Fail',
-        //         message: error.message,
-        //       });
-        //     } else {
-        //       console.log(info.response, 'OTP sent successfully.');
-        //       const updatedUser = await updateOtpPassword(req.hashedOTP, false, email);
-        //       return res.status(201).json({
-        //         status: 'Success',
-        //         message: 'An OTP has been sent to your email for password reset',
-        //         data: updatedUser
-        //       });
-        //     }
         });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            status: 'Fail',
-            message: 'Something went wrong!'
-        })
-    }
-};
-
-export const confirmOtpPassword = async (req, res) => {
-    try {
-        const { otp } = req.body;
-        const { hashedOTP, email, passwordResetTokenSent, isPasswordResetConfirmed } = req.userToChangePassword;
-        const endDate = new Date();
-        const startDate = new Date(passwordResetTokenSent);
-        const daysBetween = differenceInDays(endDate, startDate);
-        const minutesBetween = differenceInMinutes(endDate, startDate);
-        console.log(startDate, endDate, daysBetween, minutesBetween);
-        if (daysBetween < 1) {
-            if (minutesBetween <= 5 && verifyInput(otp, hashedOTP)) {
-                const updatedUser = await updatePasswordResetStatus(email, true);
-                return res.status(201).json({
-                    status: 'Success',
-                    message: 'Reset password OTP code is valid',
-                    data: updatedUser
-                });
-            }
-            return res.status(401).json({
-                status: 'Fail',
-                message: 'Invalid OTP entered'
-            })
-        }
-        return res.status(401).json({
-            status: 'Fail',
-            message: 'Invalid OTP entered'
-        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -427,23 +265,13 @@ export const confirmOtpPassword = async (req, res) => {
 
 export const changePassword = async (req, res) => {
     try {
-        const { password } = req.body;
-        const { email, isPasswordResetConfirmed } = req.userToChangePassword;
-        if (isPasswordResetConfirmed === true) {
-            const newPassword = hashInput(password);
-            await updatePassword(email, newPassword);
-            const updatedUser = await updatePasswordResetStatus(email, !isPasswordResetConfirmed);
-            return res.status(201).json({
-                status: 'Success',
-                message: 'Password reset successfully',
-                data: updatedUser
-            })  
-        } else {
-            return res.status(401).json({
-                status: 'Fail',
-                message: 'Password reset OTP not yet verified'
-            })
-        }
+        const newPassword = hashInput(req.body.password);
+        console.log(req.user.email, newPassword);
+        await updatePassword(req.user.email, newPassword);
+        return res.status(201).json({
+            status: 'Success',
+            message: 'Password reset successfully',
+        })  
     } catch (error) {
         console.log(error);
         return res.status(500).json({

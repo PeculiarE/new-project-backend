@@ -19,4 +19,6 @@ export const decodeToken = (token) => jwt.verify(token, jwtSecret, (err, data) =
 
 export const verifyInput = (data, hashedData) => compareSync(data, hashedData);
 
+export const generateTokenForPassword = (data) => jwt.sign(data, jwtSecret, { expiresIn: '10m' });
+
 export const generateTokenForLogin = (data) => jwt.sign(data, jwtSecret, { expiresIn: '30m' });

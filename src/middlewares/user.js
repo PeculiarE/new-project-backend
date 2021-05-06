@@ -2,7 +2,7 @@ import { generate } from 'generate-password';
 
 import { usernameSchema, signupSchema, sendOtpSchema, confirmOtpSchema, loginSchema, resetPasswordSchema } from '../validations';
 import { getSingleUserByEmail } from '../services';
-import { hashInput, generateTokenForOtp } from '../utils';
+import { hashInput, generateTokenForOtp, generateTokenForPassword } from '../utils';
 
 export const validateUsername = (req, res, next) => {
     try {
@@ -121,6 +121,21 @@ export const checkIfEmailExists = async (req, res, next) => {
                 message: 'Email does not exist!',
             });
        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!',
+        });
+    }
+}
+
+export const createTokenForPassword = async (req, res, next) => {
+    try {
+        const { email } = req.user;
+        req.passwordToken = generateTokenForPassword({email});
+        console.log(req.passwordToken);
+        return next();
     } catch (error) {
         console.log(error);
         return res.status(500).json({

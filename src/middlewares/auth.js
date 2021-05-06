@@ -34,17 +34,16 @@ export const authenticateTokenForOtp = async (req, res, next) => {
     }
 };
 
-export const authenticateTokenForOtpPassword = async (req, res, next) => {
+export const authenticateTokenForPassword = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
-        console.log(authorization);
-        const token = authorization.split(' ')[1];
-        const { err, data } = decodeToken(token);
+        const tokenObj = req.params;
+        console.log(tokenObj);
+        const { err, data } = decodeToken(tokenObj.token);
         if (err) {
             console.log(err);
             return res
                 .status(401)
-                .json({ status: 'Fail', message: err });
+                .json({ status: 'Fail', message: 'Password reset token expired' });
         } else {
             const { email } = data;
             const user = await getSingleUserByEmail(email);
@@ -53,9 +52,7 @@ export const authenticateTokenForOtpPassword = async (req, res, next) => {
                 .status(401)
                 .json({ status: 'Fail', message: 'User no longer exists!' });
             }
-            const { is_password_reset_confirmed: isPasswordResetConfirmed, password_reset_token_sent: passwordResetTokenSent } = user;
-            req.userToChangePassword = { ...data, passwordResetTokenSent, isPasswordResetConfirmed};
-            console.log(req.userToChangePassword);
+            req.user = user;
             return next();
         }
     } catch (error) {

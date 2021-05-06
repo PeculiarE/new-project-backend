@@ -40,21 +40,11 @@ export const updateUserStatus = `
     returning *;
 `;
 
-export const updateUserOtpPassword = `
+export const updateUserPasswordResetToken = `
     update users
     set
     password_reset_token = $1,
-    is_password_reset_confirmed = $2,
-    password_reset_token_sent = NOW(),
-    updated_at = NOW() where email = $3
-    returning *;
-`;
-
-export const updateUserPasswordResetStatus = `
-    update users
-    set
-    is_password_reset_confirmed = $2,
-    updated_at = NOW() where email = $1
+    updated_at = NOW() where email = $2
     returning *;
 `;
 

@@ -1,12 +1,12 @@
 import express from 'express';
 
 import { validateUsername, validateSignUp, checkIfUserAlreadyExists, generateOTP, validateEmail, checkIfEmailExists,
-    authenticateTokenForOtp, validateOtp, validateLogin, authenticateTokenForOtpPassword, validateResetPassword,
-    authenticateLoginToken
+    createTokenForPassword, authenticateTokenForOtp, validateOtp, validateLogin, authenticateTokenForPassword,
+    validateResetPassword, authenticateLoginToken
 } from '../middlewares';
 
-import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser, sendOtpPassword,
-    confirmOtpPassword, changePassword, retrieveUserProfile
+import { checkIfUsernameIsUnique, sendOtpWithSignup, registerUser, sendOtpOnly, confirmOtp, loginUser,
+    sendPasswordResetLink, changePassword, retrieveUserProfile
 } from '../controllers';
 
 /* GET users listing. */
@@ -21,9 +21,8 @@ userRouter.post('/signup', validateSignUp, checkIfUserAlreadyExists, generateOTP
 userRouter.post('/auth/verify-email', validateEmail, checkIfEmailExists, generateOTP, sendOtpOnly);
 userRouter.post('/auth/confirm-email', authenticateTokenForOtp, validateOtp, confirmOtp);
 userRouter.post('/auth/login', validateLogin, loginUser);
-userRouter.post('/auth/forgot-password', validateEmail, checkIfEmailExists, generateOTP, sendOtpPassword);
-userRouter.post('/auth/confirm-reset-password-otp', authenticateTokenForOtpPassword, validateOtp, confirmOtpPassword);
-userRouter.post('/auth/reset-password', authenticateTokenForOtpPassword, validateResetPassword, changePassword);
+userRouter.post('/auth/forgot-password', validateEmail, checkIfEmailExists, createTokenForPassword, sendPasswordResetLink);
+userRouter.post('/auth/reset-password/:token', validateResetPassword, authenticateTokenForPassword, changePassword);
 userRouter.get('/auth/user', authenticateLoginToken, retrieveUserProfile)
 
 export default userRouter;

@@ -1,5 +1,5 @@
 import { getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
-    updateOtpPassword, updatePasswordResetStatus, updatePassword, getUserProfile
+    updatePasswordResetToken, updatePassword, getUserProfile
 } from './user';
 
 import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
@@ -14,7 +14,7 @@ import {
 
 export {
     getSingleUserByUsername, getSingleUserByEmail, addNewUser, updateOtpHash, updateUserVerificationStatus,
-    updateOtpPassword, updatePasswordResetStatus, updatePassword, addWalletDetails, updateOtpPin, retrieveWalletByUserId,
+    updatePasswordResetToken, updatePassword, addWalletDetails, updateOtpPin, retrieveWalletByUserId,
     updatePinResetStatus, updatePin, updateBalanceAfterDeposit, roundingUpCurrency, updateBalanceAfterTransfer,
     // addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory, getHistoryByUserId,
     // addSubsequentSingleTransactionsHistory, addSubsequentMultipleTransactionsHistory,
