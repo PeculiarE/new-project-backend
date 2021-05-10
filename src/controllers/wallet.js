@@ -1,5 +1,6 @@
 import helperFunctions from '../utils';
-import { walletServices, getHistoryArrayByUserId } from '../services';
+import { walletServices, getHistoryArrayByUserId,
+    getFilteredHistoryArrayByUserId } from '../services';
 
 const { hashInput } = helperFunctions;
 const { addWalletDetails, updatePinResetToken, retrieveWalletByUserId, updatePinResetStatus, updatePin,
@@ -204,7 +205,7 @@ export const retrieveWalletBalance = async (req, res) => {
 export const retrieveTransactionHistory = async (req, res) => {
     try {
         const retrievedHistory = await getHistoryArrayByUserId(req.user.userId);
-        if(!retrievedHistory) {
+        if(retrievedHistory.length < 1) {
             return res.status(404).json({
                 status: 'Fail',
                 message: 'User has not made any transactions'
@@ -226,4 +227,31 @@ export const retrieveTransactionHistory = async (req, res) => {
             message: 'Something went wrong!'
         }) 
     }
-}
+};
+
+export const retrieveFilteredTransactionHistory = async (req, res) => {
+    try {
+        const retrievedFilteredHistory = await getFilteredHistoryArrayByUserId(req.body, req.user.userId);
+        if(retrievedFilteredHistory.length < 1) {
+            return res.status(404).json({
+                status: 'Fail',
+                message: 'No results based on filter criteria'
+            })
+        } else {
+            retrievedFilteredHistory.forEach((el) => {
+                el.amount = Number(el.amount)/100;
+            });
+            return res.status(200).json({
+                status: 'Success',
+                message: 'Filtered transaction history fetched successfully!',
+                data: retrievedFilteredHistory
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        }) 
+    }
+};

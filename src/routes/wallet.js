@@ -15,7 +15,8 @@ const { validatePin, sendPinOTP, checkIfOTPHasExpired,
 
 const { createWalletWithPin, updateResetToken, confirmPinOTP, changePin, fundWallet,
     checkIfRecipientHasActivatedWallet, checkIfBalanceIsSufficient,
-    transferFunds, retrieveWalletBalance, retrieveTransactionHistory
+    transferFunds, retrieveWalletBalance, retrieveTransactionHistory,
+    retrieveFilteredTransactionHistory,
 } = walletControllers;
 
 walletRouter.use(authenticateLoginToken);
@@ -30,5 +31,6 @@ walletRouter.post('/validate-amount', validateAmount, checkIfUserHasActivatedWal
 walletRouter.post('/transfer', validateTransfer, checkIfUserHasActivatedWallet, checkIfPinIsCorrect, transferFunds);
 walletRouter.get('/balance', checkIfUserHasActivatedWallet, retrieveWalletBalance);
 walletRouter.get('/transaction-history', checkIfUserHasActivatedWallet, retrieveTransactionHistory);
+walletRouter.get('/filtered-transaction-history', checkIfUserHasActivatedWallet, retrieveFilteredTransactionHistory);
 
 export default walletRouter;

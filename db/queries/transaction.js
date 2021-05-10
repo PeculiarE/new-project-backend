@@ -36,10 +36,25 @@ export const insertOrUpdateTransactionHistory = `
 `;
 
 export const getTransactionHistoryArrayByUserId = `
-    SELECT t.id as transaction_id, transaction_type, transaction_status,
+    select t.id as transaction_id, transaction_type, transaction_status,
     t.updated_at as transaction_date, amount
-    FROM transactions t
-    JOIN transaction_history th
-    ON t.id = ANY(th.transactions)
-    where user_id = $1; 
+    from transactions t
+    join transaction_history th
+    on t.id = any(th.transactions)
+    where user_id = $1
+    order by transaction_date desc; 
+`;
+
+export const getFilteredTransactionHistoryArrayByUserId = `
+    select date_trunc('day', t.updated_at) as date_range,
+    t.id as transaction_id, transaction_type,
+    transaction_status, t.updated_at as transaction_date, amount
+    from transactions t
+    join transaction_history th
+    on t.id = any(th.transactions)
+    where user_id = $1
+    and t.updated_at between $2 and $3
+    and transaction_type = $4
+    and transaction_status = $5
+    order by transaction_date desc;
 `;

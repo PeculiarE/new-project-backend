@@ -2,6 +2,7 @@ import db from '../../db/setup';
 import { insertSingleTransaction, insertMultipleTransactions,
     insertOrUpdateTransactionHistory,
     getTransactionHistoryArrayByUserId,
+    getFilteredTransactionHistoryArrayByUserId,
 } from '../../db/queries/transaction';
 import helperFunctions from '../utils';
 
@@ -30,4 +31,16 @@ export const addOrUpdateTransactionHistory = async (transactionId, userId) => {
 
 export const getHistoryArrayByUserId = async (userId) => {
     return db.manyOrNone(getTransactionHistoryArrayByUserId, [userId]);
+};
+
+export const getFilteredHistoryArrayByUserId = async (data, userId) => {
+    const { transactionType, startDate, endDate, transactionStatus } = data;
+    const realEndDate = `${endDate} 23:59:59`
+    return db.manyOrNone(getFilteredTransactionHistoryArrayByUserId, [
+        userId,
+        startDate,
+        realEndDate,
+        transactionType,
+        transactionStatus
+    ]);   
 }
