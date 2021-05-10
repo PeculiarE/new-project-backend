@@ -1,22 +1,16 @@
-import dotenv from "dotenv";
-import { differenceInDays, differenceInMinutes } from 'date-fns';
-import sgMail from '@sendgrid/mail';
+import helperFunctions from '../utils';
+import { walletServices, getHistoryArrayByUserId } from '../services';
 
-import { hashInput, verifyInput, decodeToken } from '../utils';
-import { addWalletDetails, updateOtpPin, retrieveWalletByUserId, updatePinResetStatus, updatePin,
-    updateBalanceAfterDeposit, getSingleUserByUsername, updateBalanceAfterTransfer, getWalletBalance,
-    getHistoryArrayByUserId
-} from '../services';
-
-dotenv.config();
+const { hashInput } = helperFunctions;
+const { addWalletDetails, updatePinResetToken, retrieveWalletByUserId, updatePinResetStatus, updatePin,
+    updateBalanceAfterDeposit, updateBalanceAfterTransfer
+} = walletServices;
 
 export const createWalletWithPin = async (req, res) => {
     try {
-        const { pin } = req.body;
-        const { userId } = req.loggedInUser;
-        const pinHash = hashInput(pin);
-        const walletDetails = { pinHash, userId };
-        console.log(walletDetails);
+        const pinHash = hashInput(req.body.pin);
+        const walletDetails = { pinHash, userId: req.user.userId };
+        console.log(req.user.userId, walletDetails);
         const wallet = await addWalletDetails(walletDetails);
         return res.status(201).json({
             status: 'Success',
@@ -32,42 +26,13 @@ export const createWalletWithPin = async (req, res) => {
     }
 };
 
-export const sendPinOTP = async (req, res) => {
+export const updateResetToken = async (req, res) => {
     try {
-        const { email, userId, firstName } = req.loggedInUser;
-        console.log(email, firstName);
-        // using SendGrid
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        const msg = {
-            to: email,
-            from: `Jupyter Wallet Admin <${process.env.EMAIL_SENDER_TWO}>`,
-            subject: 'PIN Reset',
-            text: `Dear ${firstName},
-            Kindly use the One-Time-Password (OTP) below to reset your pin.
-            ${req.OTP}`,
-            html: `<h2> Dear ${firstName}, </h2>
-            <p> Kindly use the One-Time-Password (OTP) below to reset your pin. </p>
-            <h1>${req.OTP}</h1>`,
-        }
-        sgMail
-            .send(msg)
-            .then( async (response) => {
-                console.log(response[0].statusCode)
-                console.log(response[0].headers)
-                const updatedWallet = await updateOtpPin(req.hashedOTP, false, userId);
-                return res.status(201).json({
-                    status: 'Success',
-                    message: 'An OTP has been sent to your email for PIN reset',
-                    data: updatedWallet
-                });
-            }).catch((error) => {
-                console.log(error);
-                console.error(error);
-                return res.status(400).json({
-                    status: 'Fail',
-                    message: error.message,
-            });
-        });
+        await updatePinResetToken(req.pinResetToken, req.user.userId);
+        return res.status(201).json({
+            status: 'Success',
+            message: 'An OTP has been sent to your email for PIN reset'
+        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -79,30 +44,12 @@ export const sendPinOTP = async (req, res) => {
 
 export const confirmPinOTP = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
-        const { pin_reset_token: pinResetToken, pin_reset_token_sent: pinResetTokenSent, is_pin_reset_confirmed: isPinResetConfirmed
-        } = await retrieveWalletByUserId(userId);
-        console.log(pinResetToken, pinResetTokenSent);
-        const { otp } = req.body;
-        const endDate = new Date();
-        const startDate = new Date(pinResetTokenSent);
-        const daysBetween = differenceInDays(endDate, startDate);
-        const minutesBetween = differenceInMinutes(endDate, startDate);
-        console.log(startDate, endDate, daysBetween, minutesBetween);
-        if (daysBetween < 1) {
-            if (minutesBetween <= 5 && verifyInput(otp, decodeToken(pinResetToken).data)) {
-                console.log(userId, isPinResetConfirmed, !isPinResetConfirmed);
-                const updatedWallet = await updatePinResetStatus(userId, true);
-                return res.status(201).json({
-                    status: 'Success',
-                    message: 'Reset pin OTP code is valid',
-                    data: updatedWallet
-                });
-            }
-            return res.status(401).json({
-                status: 'Fail',
-                message: 'Invalid OTP entered'
-            })
+        if (req.body.otp === req.decodedData.otp) {
+           await updatePinResetStatus(req.user.userId);
+            return res.status(201).json({
+                status: 'Success',
+                message: 'Reset pin OTP code is valid'
+            });
         }
         return res.status(401).json({
             status: 'Fail',
@@ -117,18 +64,15 @@ export const confirmPinOTP = async (req, res) => {
     }
 };
 
-export const changePin = async (req, res, next) => {
+export const changePin = async (req, res) => {
     try {
-        const { pin } = req.body;
-        const { userId } = req.loggedInUser;
-        const { is_pin_reset_confirmed: isPinResetConfirmed } = await retrieveWalletByUserId(userId);
-        if (isPinResetConfirmed === true) {
-            const newPassword = hashInput(pin);
-            const updatedWallet = await updatePin(newPassword, false, userId);
+        const { is_pin_reset_confirmed: isPinResetConfirmed } = await retrieveWalletByUserId(req.user.userId);
+        if (isPinResetConfirmed) {
+            const newPin = hashInput(req.body.pin);
+            await updatePin(newPin, req.user.userId);
             return res.status(201).json({
                 status: 'Success',
                 message: 'Pin reset successfully',
-                data: updatedWallet
             })  
         } else {
             return res.status(401).json({
@@ -147,13 +91,12 @@ export const changePin = async (req, res, next) => {
 
 export const fundWallet = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
-        const updatedWallet = await updateBalanceAfterDeposit(req.realValue, userId);
+        const updatedWallet = await updateBalanceAfterDeposit(req.body.amount, req.user.userId);
         const balance = Number((updatedWallet.balance))/100;
         return res.status(201).json({
             status: 'Success',
             message: 'Wallet funded successfully!',
-            data: { ...updatedWallet, balance, amount_funded: req.realValue }
+            data: { ...updatedWallet, balance, amount_funded: req.body.amount }
         })
     } catch (error) {
         console.log(error);
@@ -164,41 +107,34 @@ export const fundWallet = async (req, res) => {
     }
 };
 
-export const checkIfUsernameExists = async (req, res) => {
+export const checkIfRecipientHasActivatedWallet = async (req, res) => {
     try {
-        const { recipientUsername } = req.body;
-        const realUsername = String(recipientUsername).toLowerCase();
-        const user = await getSingleUserByUsername(realUsername);
-        if (user) {
-            const { first_name: firstName, last_name: lastName } = user;
-            const fullName = `${firstName} ${lastName}`
-            console.log(recipientUsername, realUsername, fullName);
-            return res.status(201).json({
+        const { first_name: firstName, last_name: lastName, id: userId } = req.receiver;
+        const fullName = `${firstName} ${lastName}`;
+        const wallet = await retrieveWalletByUserId(userId);
+        if (!wallet) {
+            return res.status(404).json({
+                status: 'Fail',
+                message: `Recipient '${fullName}' yet to activate wallet`
+            })
+        }
+        return res.status(201).json({
                 status: 'Success',
                 message: `Recipient '${fullName}' found`
             })
-        } else {
-            return res.status(409).json({
-                status: 'Fail',
-                message: 'Recipient not found'
-            })
-        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
             message: 'Something went wrong!'
-        })
+        }) 
     }
-};
+}
 
 export const checkIfBalanceIsSufficient = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
-        const { balance } = await retrieveWalletByUserId(userId);
-        const realBalance = balance/100;
-        console.log(req.realValue, realBalance);
-        if (req.realValue <= realBalance)
+        const realBalance = Number(req.wallet.balance)/100;
+        if (req.body.amount <= realBalance)
         return res.status(201).json({
             status: 'Success',
             message: 'Balance is sufficient',
@@ -221,7 +157,7 @@ export const checkIfBalanceIsSufficient = async (req, res) => {
 
 export const transferFunds = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
+        const { userId } = req.user;
         const data = { ...req.body, userId };
         const updatedWallets = await updateBalanceAfterTransfer(data);
         let senderBalance = 0;
@@ -250,9 +186,7 @@ export const transferFunds = async (req, res) => {
 
 export const retrieveWalletBalance = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
-        const { balance } = await getWalletBalance(userId);
-        const newBalance = Number(balance)/100;
+        const newBalance = Number(req.wallet.balance)/100;
         return res.status(200).json({
             status: 'Success',
             message: 'Wallet balance fetched successfully!',
@@ -269,8 +203,7 @@ export const retrieveWalletBalance = async (req, res) => {
 
 export const retrieveTransactionHistory = async (req, res) => {
     try {
-        const { userId } = req.loggedInUser;
-        const retrievedHistory = await getHistoryArrayByUserId(userId);
+        const retrievedHistory = await getHistoryArrayByUserId(req.user.userId);
         if(!retrievedHistory) {
             return res.status(404).json({
                 status: 'Fail',

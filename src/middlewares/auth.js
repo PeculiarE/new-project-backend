@@ -21,7 +21,7 @@ export const authenticateOtpToken = async (req, res, next) => {
                 .status(401)
                 .json({ status: 'Fail', message: 'User no longer exists!' });
             }
-            req.userToBeVerified = user;
+            req.user = user;
             return next();
         }
     } catch (error) {
@@ -35,9 +35,9 @@ export const authenticateOtpToken = async (req, res, next) => {
 
 export const authenticatePasswordToken = async (req, res, next) => {
     try {
-        const tokenObj = req.params;
-        console.log(tokenObj);
-        const { err, data } = decodeToken(tokenObj.token);
+        const { authorization } = req.headers;
+        const token = authorization.split(' ')[1];
+        const { err, data } = decodeToken(token);
         if (err) {
             console.log(err);
             return res
@@ -66,17 +66,15 @@ export const authenticatePasswordToken = async (req, res, next) => {
 export const authenticateLoginToken = (req, res, next) => {
     try {
       const { authorization } = req.headers;
-      console.log(authorization);
       const token = authorization.split(' ')[1];
       const { err, data } = decodeToken(token);
-      console.log('>>>>>>>', data);
       if (err) {
         console.log(err);
         return res
           .status(401)
           .json({ status: 'Fail', message: 'You need to be signed in' });
       }
-      req.loggedInUser = data;
+      req.user = data;
       return next();
     } catch (error) {
         console.log(error);

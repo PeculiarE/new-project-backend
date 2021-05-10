@@ -1,15 +1,14 @@
 import db from '../../db/setup';
-import { insertWalletDetails, updateWalletOtpPin, getWalletByUserId, updateWalletPinResetStatus,
+import { insertWalletDetails, updateWalletPinResetToken, getWalletByUserId, updateWalletPinResetStatus,
     updateWalletPin, updateWalletBalanceAfterDeposit, getBalanceFromUsername, updateWalletBalancesAfterTransfer,
-    getWalletBalanceByUserId,
 } from '../../db/queries/wallet';
 
-import { generateUUID } from '../utils';
+import helperFunctions from '../utils';
 
-import { addSingleTransaction, addMultipleTransactions, addFirstSingleTransactionHistory,
-    getHistoryByUserId, addSubsequentSingleTransactionsHistory, addFirstMultipleTransactionsHistory,
-    addSubsequentMultipleTransactionsHistory
+import { addSingleTransaction, addMultipleTransactions, addOrUpdateTransactionHistory
 } from './transaction';
+
+const { generateUUID } = helperFunctions;
 
 export const addWalletDetails = async (data) => {
     const id = generateUUID();
@@ -17,34 +16,51 @@ export const addWalletDetails = async (data) => {
     return db.one(insertWalletDetails, [id, userId, pinHash]);
 }
 
-export const updateOtpPin = async (data, status, userId) => db.one(updateWalletOtpPin, [data, status, userId]);
+export const updatePinResetToken = async (token, userId) => db.none(updateWalletPinResetToken, [token, userId]);
 
 export const retrieveWalletByUserId = async (userId) => db.oneOrNone(getWalletByUserId, [userId]);
 
-export const updatePinResetStatus = async (userId, status) => db.one(updateWalletPinResetStatus, [userId, status]);
+export const updatePinResetStatus = async (userId) => db.none(updateWalletPinResetStatus, [userId]);
 
-export const updatePin = async (data, status, userId) => db.one(updateWalletPin, [data, status, userId]);
+export const updatePin = async (pin, userId) => db.none(updateWalletPin, [pin, userId]);
 
 export const updateBalanceAfterDeposit = async (data, userId) => {
     const { balance, id } = await retrieveWalletByUserId(userId);
-    const incomingFund = Number(data) * 100;
+    const incomingFund = data * 100;
     const newBalance = Number(balance) + incomingFund;
-    console.log(balance, incomingFund, newBalance);
     const transactionData = { walletId: id, amount: incomingFund };
-    console.log(transactionData);
     const { id: transactionId } = await addSingleTransaction(transactionData);
-    console.log(transactionId);
-    const transactionHistoryRow = await getHistoryByUserId(userId);
-    console.log(transactionHistoryRow);
-    if (!transactionHistoryRow) {
-        const transactionHistoryData = { userId, transactionId };
-        console.log(userId, transactionHistoryData);
-        await addFirstSingleTransactionHistory(transactionId, userId);
-    } else {
-        await addSubsequentSingleTransactionsHistory(transactionId, userId);
-    }
+    await addOrUpdateTransactionHistory(transactionId, userId);
     return db.one(updateWalletBalanceAfterDeposit, [newBalance, userId]);
 };
+
+// export const updateBalanceAfterDeposit = db.tx (async (t, data, userId) => {
+//     const q1 = retrieveWalletByUserId(userId);
+//     const { balance, id } = q1;
+//     const incomingFund = data * 100;
+//     const newBalance = Number(balance) + incomingFund;
+//     const transactionData = { walletId: id, amount: incomingFund };
+//     const q2 = addSingleTransaction(transactionData);
+//     const { id: transactionId } = q2;
+//     const q3 = addOrUpdateTransactionHistory(transactionId, userId);
+//     const q4 = t.one(updateWalletBalanceAfterDeposit, [newBalance, userId]);
+//     return t.batch([q1, q2, q3, q4]);
+// });
+
+// db.tx(t => {
+//     // creating a sequence of transaction queries:
+//     const q1 = t.none('UPDATE users SET active = $1 WHERE id = $2', [true, 123]);
+//     const q2 = t.one('INSERT INTO audit(entity, id) VALUES($1, $2) RETURNING id', ['users', 123]);
+
+//     // returning a promise that determines a successful transaction:
+//     return t.batch([q1, q2]); // all of the queries are to be resolved;
+// })
+//     .then(data => {
+//         // success, COMMIT was executed
+//     })
+//     .catch(error => {
+//         // failure, ROLLBACK was executed
+//     });
 
 export const roundingUpCurrency = (number, precision) => {
     let base = 10 ** precision;
@@ -53,50 +69,35 @@ export const roundingUpCurrency = (number, precision) => {
 
 const retrieveBalanceFromUsername = async (username) => db.one(getBalanceFromUsername, [username]);
 
+const getTransactionIds = (transactionArray) => {
+    let senderTransactionId = '';
+    let recipientTransactionId = '';
+    transactionArray.forEach((el) => {
+        if (el.transaction_type === 'transfer') {
+            senderTransactionId = el.id;
+            return senderTransactionId;
+        } else {
+            recipientTransactionId = el.id;
+            return recipientTransactionId;
+        }
+    })
+    return { senderTransactionId, recipientTransactionId};
+};
+
 export const updateBalanceAfterTransfer = async (data) => {
     const { userId, amount, recipientUsername } = data;
-    const transferredFund = Number(amount) * 100;
+    const transferredFund = amount * 100;
     const { balance, id } = await retrieveWalletByUserId(userId);
     const userNewBalance = Number(balance) - transferredFund;
-    const convertedRecipientUsername = String(recipientUsername).toLowerCase();
+    const convertedRecipientUsername = recipientUsername.toLowerCase();
     const {
         balance: recipientBalance, user_id: recipientUserId, id: receiverWalletId
     } = await retrieveBalanceFromUsername(convertedRecipientUsername);
     const recipientNewBalance = Number(recipientBalance) + transferredFund;
-    console.log(userId, userNewBalance, recipientUserId, recipientNewBalance);
     const transactionData = { senderWalletId: id, amount: transferredFund, receiverWalletId };
     const transactionIds = await addMultipleTransactions(transactionData);
-    let senderTransactionId = '';
-    let recipientTransactionId = '';
-    transactionIds.forEach((el) => {
-            if (el.transaction_type === 'transfer')
-            {
-                senderTransactionId = el.id;
-                return senderTransactionId;
-            }
-            else {
-                recipientTransactionId = el.id;
-                return recipientTransactionId;
-            }
-        })
-    const senderTransactionHistoryRow = await getHistoryByUserId(userId);
-    const recipientTransactionHistoryRow = await getHistoryByUserId(recipientUserId);
-    const historyData = { senderUserId: userId, senderTransactionId, recipientUserId, recipientTransactionId };
-    if (senderTransactionHistoryRow && recipientTransactionHistoryRow) {
-        await addSubsequentMultipleTransactionsHistory(historyData);
-    } else if (!senderTransactionHistoryRow && !recipientTransactionHistoryRow) {
-        await addFirstMultipleTransactionsHistory(historyData);
-    // } else if (!senderTransactionHistoryRow && recipientTransactionHistoryRow) {
-    //     await addFirstSingleTransactionHistory(senderTransactionId, userId);
-    //     await addSubsequentSingleTransactionsHistory(recipientTransactionId, recipientUserId);
-    // I feel the above elseif block is redundant as sender must fund before he can transfer
-    // and would therefore have history
-    } else {
-        console.log(recipientUserId, recipientTransactionId, senderTransactionId, userId);
-        await addFirstSingleTransactionHistory(recipientTransactionId, recipientUserId);
-        await addSubsequentSingleTransactionsHistory(senderTransactionId, userId);
-    }
+    const idObject = getTransactionIds(transactionIds);
+    await addOrUpdateTransactionHistory(idObject.senderTransactionId, userId)
+    await addOrUpdateTransactionHistory(idObject.recipientTransactionId, recipientUserId);
     return db.many(updateWalletBalancesAfterTransfer, [userId, userNewBalance, recipientUserId, recipientNewBalance]);
 };
-
-export const getWalletBalance = async (userId) => db.one(getWalletBalanceByUserId, [userId]);

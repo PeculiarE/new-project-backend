@@ -1,31 +1,34 @@
 import express from 'express';
 
-import { authenticateLoginToken, validatePin, generatePinOTP, validateOtp, validateAmount, convertCurrency,
-    validateTransfer, validateRecipientUsername, checkIfPinIsCorrect
-} from '../middlewares';
-
-import { createWalletWithPin, sendPinOTP, confirmPinOTP, changePin, fundWallet, checkIfUsernameExists, checkIfBalanceIsSufficient,
-    transferFunds, retrieveWalletBalance, retrieveTransactionHistory
-} from '../controllers';
-
-/* GET users listing. */
-// router.get('/', (req, res, next) => {
-//   res.send('respond with a resource');
-// });
+import { walletMiddlewares, authMiddlewares, userMiddlewares } from '../middlewares';
+import { walletControllers } from '../controllers';
 
 const walletRouter = express.Router();
 
-// walletRouter.use(authenticateLoginToken);
+const { authenticateLoginToken } = authMiddlewares;
+const { validateOtp } = userMiddlewares;
 
-// walletRouter.post('/create-pin', validatePin, createWalletWithPin);
-// walletRouter.post('/forgot-pin', generatePinOTP, sendPinOTP);
-// walletRouter.post('/confirm-reset-pin-otp', validateOtp, confirmPinOTP);
-// walletRouter.post('/reset-pin', validatePin, changePin);
-// walletRouter.post('/deposit', validateAmount, convertCurrency, fundWallet);
-// walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfUsernameExists);
-// walletRouter.post('/validate-amount', validateAmount, convertCurrency, checkIfBalanceIsSufficient);
-// walletRouter.post('/transfer', validateTransfer, checkIfPinIsCorrect, transferFunds);
-// walletRouter.get('/balance', retrieveWalletBalance);
-// walletRouter.get('/transaction-history', retrieveTransactionHistory);
+const { validatePin, sendPinOTP, checkIfOTPHasExpired,
+    validateAmount, checkIfUserHasActivatedWallet, validateRecipientUsername,
+    checkIfRecipientExists, validateTransfer, checkIfPinIsCorrect
+} = walletMiddlewares;
+
+const { createWalletWithPin, updateResetToken, confirmPinOTP, changePin, fundWallet,
+    checkIfRecipientHasActivatedWallet, checkIfBalanceIsSufficient,
+    transferFunds, retrieveWalletBalance, retrieveTransactionHistory
+} = walletControllers;
+
+walletRouter.use(authenticateLoginToken);
+
+walletRouter.post('/create-pin', validatePin, createWalletWithPin);
+walletRouter.post('/forgot-pin', sendPinOTP, updateResetToken);
+walletRouter.post('/confirm-reset-pin-otp', validateOtp, checkIfOTPHasExpired, confirmPinOTP);
+walletRouter.post('/reset-pin', validatePin, changePin);
+walletRouter.post('/deposit', validateAmount, checkIfUserHasActivatedWallet, fundWallet);
+walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfRecipientExists, checkIfRecipientHasActivatedWallet);
+walletRouter.post('/validate-amount', validateAmount, checkIfUserHasActivatedWallet, checkIfBalanceIsSufficient);
+walletRouter.post('/transfer', validateTransfer, checkIfUserHasActivatedWallet, checkIfPinIsCorrect, transferFunds);
+walletRouter.get('/balance', checkIfUserHasActivatedWallet, retrieveWalletBalance);
+walletRouter.get('/transaction-history', checkIfUserHasActivatedWallet, retrieveTransactionHistory);
 
 export default walletRouter;

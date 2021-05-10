@@ -4,7 +4,12 @@ export const getUserByUsername = `
 `;
 
 export const getUserByEmail = `
-    select * from users
+    select us.first_name as firstname, us.email,
+    us.is_confirmed, us.password_hash, us.otp_hash,
+    us.id as userid, wt.id as walletid
+    from users us
+    left join wallets wt on
+    wt.user_id = us.id
     where email = $1;
 `;
 

@@ -3,7 +3,7 @@ import { userValidations } from '../validations';
 import { userServices } from '../services';
 
 const { generateOTP, generateTokenForOtp,
-    generateTokenForPassword, sendVerificationEmail } =  helperFunctions;
+    generateTokenForPassword, sendOtpEmail } =  helperFunctions;
 const { usernameSchema, signupSchema, emailSchema,
     otpSchema, loginSchema, passwordSchema } = userValidations;
 const { getSingleUserByEmail } = userServices;
@@ -15,7 +15,7 @@ export const validateUsername = async (req, res, next) => {
     } catch (error) {
         return res.status(400).json({
             status: 'Fail',
-            message: error.message,
+            message: error.message
         });
     }
 };
@@ -27,7 +27,7 @@ export const validateSignUp = async (req, res, next) => {
     } catch (error) {
         return res.status(400).json({
             status: 'Fail',
-            message: error.message,
+            message: error.message
         });
     }
 };
@@ -40,23 +40,24 @@ export const checkIfUserAlreadyExists = async (req, res, next) => {
        } else {
             return res.status(409).json({
                 status: 'Fail',
-                message: 'Email already exists!',
+                message: 'Email already exists!'
             });
        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: 'Something went wrong!'
         });
     }
 }
 
 export const sendOtp = async (req, res, next) => {
     try {
-        const firstName = req.body.firstName ? req.body.firstName : req.user.first_name;
+        const firstName = req.body.firstName ? req.body.firstName : req.user.firstname;
         req.OTP = generateOTP();
-        await sendVerificationEmail(req.body.email, firstName, req.OTP);
+        const check = true;
+        await sendOtpEmail(req.body.email, firstName, req.OTP, check);
         req.confirmationToken = generateTokenForOtp({email: req.body.email});
         return next();
     } catch (error) {
@@ -75,7 +76,7 @@ export const validateEmail = async (req, res, next) => {
     } catch (error) {
         return res.status(400).json({
             status: 'Fail',
-            message: error.message,
+            message: error.message
         });
     }
 }
@@ -89,89 +90,66 @@ export const checkIfEmailExists = async (req, res, next) => {
        } else {
             return res.status(409).json({
                 status: 'Fail',
-                message: 'Email does not exist!',
+                message: 'Email does not exist!'
             });
        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: 'Something went wrong!'
         });
     }
 }
 
 export const createTokenForPassword = async (req, res, next) => {
     try {
-        const { email } = req.user;
-        req.passwordToken = generateTokenForPassword({email});
+        req.passwordToken = generateTokenForPassword({email: req.user.email});
         console.log(req.passwordToken);
         return next();
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: 'Something went wrong!'
         });
     }
 }
 
-export const validateOtp = (req, res, next) => {
+export const validateOtp = async (req, res, next) => {
     try {
-        const { error } = otpSchema.validate(req.body);
-        if (!error) {
-            return next();
-        } else {
-            return res.status(400).json({
-                status: 'Fail',
-                message: error.message,
-            });
-        }
+        await otpSchema.validateAsync(req.body);
+        return next();
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
+        return res.status(400).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: error.message
         });
     }
 }
 
-export const validateLogin = (req, res, next) => {
+export const validateLogin = async (req, res, next) => {
     try {
-        const { error } = loginSchema.validate(req.body);
-        if (!error) {
-            return next();
-        } else {
-            return res.status(400).json({
-                status: 'Fail',
-                message: error.message,
-            });
-        }
+        await loginSchema.validateAsync(req.body);
+        return next();
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
+        return res.status(400).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: error.message
         });
     }
 }
 
-export const validateResetPassword = (req, res, next) => {
+export const validatePassword = async (req, res, next) => {
     try {
-        const { error } = passwordSchema.validate(req.body);
-        if (!error) {
-            return next();
-        } else {
-            return res.status(400).json({
-                status: 'Fail',
-                message: error.message,
-            });
-        }
+        await passwordSchema.validateAsync(req.body);
+        return next();
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
+        return res.status(400).json({
             status: 'Fail',
-            message: 'Something went wrong!',
+            message: error.message
         });
     }
 }

@@ -2,10 +2,8 @@ import * as userMiddlewares from './user';
 
 import * as authMiddlewares from './auth';
 
-import { validatePin, generatePinOTP, validateRecipientUsername, validateAmount, 
-    convertCurrency, validateTransfer, checkIfPinIsCorrect } from './wallet';
+import * as walletMiddlewares from './wallet';
 
 export {
-    userMiddlewares, authMiddlewares, validatePin, generatePinOTP, validateRecipientUsername, validateAmount, convertCurrency, 
-    validateTransfer, checkIfPinIsCorrect,
+    userMiddlewares, authMiddlewares, walletMiddlewares
 };

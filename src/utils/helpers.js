@@ -33,22 +33,66 @@ export const generateTokenForPassword = (data) => jwt.sign(data, jwtSecret, { ex
 
 export const generateTokenForLogin = (data) => jwt.sign(data, jwtSecret, { expiresIn: '30m' });
 
-export const sendVerificationEmail = async (email, name, OTP) => {
-    sgMail.setApiKey(emailApiKey);
+const emailMessageForOTP = (email, name, OTP, check) => {
+    const action = check ? 'verify your email address' : 'reset your PIN';
     const msg = {
         to: email,
         from: `Jupyter Wallet Admin <${emailSender}>`,
-        subject: 'Email Verification',
+        subject: check ? 'Email Verification' : 'PIN Reset',
         text: `Dear ${name},
-        Thank you for signing up to our Wallet App.
-        Kindly use the One-Time-Password (OTP) below to verify your email address.
-        ${OTP}`,
+            Thank you for ${ check ? 'signing up to': 'using'} our Wallet App.
+            Kindly use the One-Time-Password (OTP) below to ${action}.
+            ${OTP}
+        `,
         html: `<h2> Dear ${name}, </h2>
-        <p> Thank you for signing up to our Wallet App. </p>
-        <p> Kindly use the One-Time-Password (OTP) below to verify your email address. </p>
-        <h1>${OTP}</h1>`,
-    };
-    sgMail
+            <p> Thank you for ${ check ? 'signing up to': 'using'} our Wallet App. </p>
+            <p> Kindly use the One-Time-Password (OTP) below to ${action}. </p>
+            <h1>${OTP}</h1>
+        `,
+    }
+    return msg;
+}
+
+const emailMessageForLink = (email, name, token) => {
+    const msg = {
+        to: email,
+        from: `Jupyter Wallet Admin <${emailSender}>`,
+        subject: 'Password Reset',
+        text: `Dear ${name},
+            Kindly click on the button below to reset your password.
+            http://localhost:8080/resetForm?token=${token}`,
+        html: `<h2> Dear ${name}, </h2>
+            <p> Kindly click on the button below to reset your password. </p>
+            <br>
+            <a href="http://localhost:8080/resetForm?token=${token}"
+            target="_blank"
+            style="background-color:#1F6AEC; color:white; cursor:pointer;
+            padding:10px; border:1pxsolid; text-decoration:none; border-radius:4px">
+            Reset My Password
+            </a>
+        `,
+    }
+    return msg;
+}
+
+export const sendOtpEmail = async (email, name, OTP, check) => {
+    sgMail.setApiKey(emailApiKey);
+    const msg = emailMessageForOTP(email, name, OTP, check);
+    await sgMail
+        .send(msg)
+        .then((response) => {
+            console.log(response[0].statusCode)
+            console.log(response[0].headers)
+        }).catch((error) => {
+            console.log(error);
+            console.error(error);
+        });
+};
+
+export const sendLinkEmail = async (email, name, token) => {
+    sgMail.setApiKey(emailApiKey);
+    const msg = emailMessageForLink(email, name, token);
+    await sgMail
         .send(msg)
         .then((response) => {
             console.log(response[0].statusCode)

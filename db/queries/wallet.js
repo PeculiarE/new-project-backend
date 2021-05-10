@@ -3,17 +3,15 @@ export const insertWalletDetails = `
         id,
         user_id,
         pin_hash) values ($1, $2, $3)
-        returning *;
+        returning id, user_id, balance;
 `;
 
-export const updateWalletOtpPin = `
+export const updateWalletPinResetToken = `
     update wallets
     set
     pin_reset_token = $1,
-    is_pin_reset_confirmed = $2,
-    pin_reset_token_sent = NOW(),
-    updated_at = NOW() where user_id = $3
-    returning *;
+    is_pin_reset_confirmed = false,
+    updated_at = NOW() where user_id = $2;
 `;
 
 export const getWalletByUserId = `
@@ -24,18 +22,16 @@ export const getWalletByUserId = `
 export const updateWalletPinResetStatus = `
     update wallets
     set
-    is_pin_reset_confirmed = $2,
-    updated_at = NOW() where user_id = $1
-    returning *;
+    is_pin_reset_confirmed = true,
+    updated_at = NOW() where user_id = $1;
 `;
 
 export const updateWalletPin = `
     update wallets
     set
     pin_hash = $1,
-    is_pin_reset_confirmed = $2,
-    updated_at = NOW() where user_id = $3
-    returning *;
+    is_pin_reset_confirmed = false,
+    updated_at = NOW() where user_id = $2;
 `;
 
 export const updateWalletBalanceAfterDeposit = `
@@ -43,7 +39,7 @@ export const updateWalletBalanceAfterDeposit = `
     set
     balance = $1,
     updated_at = NOW() where user_id = $2
-    returning *;
+    returning id, user_id, balance;
 `;
 
 export const getBalanceFromUsername = `
@@ -68,9 +64,4 @@ export const updateWalletBalancesAfterTransfer = `
     end
     where user_id in ($1, $3)
     returning user_id = $1 as sender, balance;
-`;
-
-export const getWalletBalanceByUserId = `
-    select balance from wallets
-    where user_id = $1; 
 `;

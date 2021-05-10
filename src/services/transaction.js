@@ -1,10 +1,11 @@
 import db from '../../db/setup';
-import { insertSingleTransaction, insertMultipleTransactions, getTransactionHistoryByUserId,
-    insertFirstSingleTransactionHistory, updateSubsequentSingleTransactionsHistory,
-    insertFirstMultipleTransactionsHistory, updateSubsequentMultipleTransactionsHistory,
+import { insertSingleTransaction, insertMultipleTransactions,
+    insertOrUpdateTransactionHistory,
     getTransactionHistoryArrayByUserId,
 } from '../../db/queries/transaction';
-import { generateUUID } from '../utils';
+import helperFunctions from '../utils';
+
+const { generateUUID } = helperFunctions;
 
 export const addSingleTransaction = async (data) => {
     const id = generateUUID();
@@ -20,33 +21,11 @@ export const addMultipleTransactions = async (data) => {
         senderId, senderWalletId, amount, 'transfer', receiverId, receiverWalletId, amount, 'deposit']);
 };
 
-export const getHistoryByUserId = async (userId) => db.oneOrNone(getTransactionHistoryByUserId, [userId]);
-
-export const addFirstSingleTransactionHistory = async (transactionId, userId) => {
+export const addOrUpdateTransactionHistory = async (transactionId, userId) => {
     const id = generateUUID();
     const transactionArray = `{${transactionId}}`
-    return db.one(insertFirstSingleTransactionHistory, [id, userId, transactionArray]);
-};
-
-export const addSubsequentSingleTransactionsHistory = async (transactionId, userId) => {
-    return db.one(updateSubsequentSingleTransactionsHistory, [transactionId, userId]);
-};
-
-export const addFirstMultipleTransactionsHistory = async (data) => {
-    const senderId = generateUUID();
-    const recipientId = generateUUID();
-    const { senderUserId, senderTransactionId, recipientUserId, recipientTransactionId } = data;
-    const senderTransactionArray = `{${senderTransactionId}}`;
-    const recipientTransactionArray = `{${recipientTransactionId}}`;
-    return db.many(insertFirstMultipleTransactionsHistory, [
-        senderId, senderUserId, senderTransactionArray, recipientId, recipientUserId, recipientTransactionArray]);
-};
-
-export const addSubsequentMultipleTransactionsHistory = async (data) => {
-    const { senderUserId, senderTransactionId, recipientUserId, recipientTransactionId } = data
-    return db.many(updateSubsequentMultipleTransactionsHistory, [
-        senderUserId, senderTransactionId, recipientUserId, recipientTransactionId
-    ]);
+    return db.none(insertOrUpdateTransactionHistory, [id, userId,
+        transactionArray, transactionId]);
 };
 
 export const getHistoryArrayByUserId = async (userId) => {
