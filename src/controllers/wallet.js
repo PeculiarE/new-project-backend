@@ -229,7 +229,7 @@ export const retrieveFilteredTransactionHistory = async (req, res) => {
         retrievedFilteredHistory.forEach((el) => {
             el.amount = Number(el.amount)/100;
         });
-        return res.status(200).json({
+        return res.status(201).json({
             status: 'Success',
             message: 'Filtered transaction history fetched successfully!',
             data: retrievedFilteredHistory
