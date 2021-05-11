@@ -31,6 +31,6 @@ walletRouter.post('/validate-amount', validateAmount, checkIfUserHasActivatedWal
 walletRouter.post('/transfer', validateTransfer, checkIfUserHasActivatedWallet, checkIfPinIsCorrect, transferFunds);
 walletRouter.get('/balance', checkIfUserHasActivatedWallet, retrieveWalletBalance);
 walletRouter.get('/transaction-history', checkIfUserHasActivatedWallet, checkPageNumberAndLimit, retrieveTransactionHistory);
-walletRouter.get('/filtered-transaction-history', checkIfUserHasActivatedWallet, checkPageNumberAndLimit, retrieveFilteredTransactionHistory);
+walletRouter.post('/filtered-transaction-history', checkIfUserHasActivatedWallet, checkPageNumberAndLimit, retrieveFilteredTransactionHistory);
 
 export default walletRouter;
