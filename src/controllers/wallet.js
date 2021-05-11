@@ -204,22 +204,15 @@ export const retrieveWalletBalance = async (req, res) => {
 
 export const retrieveTransactionHistory = async (req, res) => {
     try {
-        const retrievedHistory = await getHistoryArrayByUserId(req.user.userId);
-        if(retrievedHistory.length < 1) {
-            return res.status(404).json({
-                status: 'Fail',
-                message: 'User has not made any transactions'
-            })
-        } else {
-            retrievedHistory.forEach((el) => {
-                el.amount = Number(el.amount)/100;
-            });
-            return res.status(200).json({
-                status: 'Success',
-                message: 'Transaction history fetched successfully!',
-                data: retrievedHistory
-            })
-        }
+        const retrievedHistory = await getHistoryArrayByUserId(req.user.userId, req.pageData);
+        retrievedHistory.forEach((el) => {
+            el.amount = Number(el.amount)/100;
+        });
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Transaction history fetched successfully!',
+            data: retrievedHistory
+        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -231,22 +224,16 @@ export const retrieveTransactionHistory = async (req, res) => {
 
 export const retrieveFilteredTransactionHistory = async (req, res) => {
     try {
-        const retrievedFilteredHistory = await getFilteredHistoryArrayByUserId(req.body, req.user.userId);
-        if(retrievedFilteredHistory.length < 1) {
-            return res.status(404).json({
-                status: 'Fail',
-                message: 'No results based on filter criteria'
-            })
-        } else {
-            retrievedFilteredHistory.forEach((el) => {
-                el.amount = Number(el.amount)/100;
-            });
-            return res.status(200).json({
-                status: 'Success',
-                message: 'Filtered transaction history fetched successfully!',
-                data: retrievedFilteredHistory
-            })
-        }
+        const data = { ...req.body, ...req.pageData };
+        const retrievedFilteredHistory = await getFilteredHistoryArrayByUserId(req.user.userId, data);
+        retrievedFilteredHistory.forEach((el) => {
+            el.amount = Number(el.amount)/100;
+        });
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Filtered transaction history fetched successfully!',
+            data: retrievedFilteredHistory
+        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
