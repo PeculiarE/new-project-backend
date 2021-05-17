@@ -5,11 +5,17 @@
   "scripts": {
     "prestart": "db-migrate up -e pg",
     "start": "babel-node ./src/bin/www.js",
+    "pretest": "cross-env NODE_ENV=test && npm run migrate:reset:test && npm run migrate:up:test",
+    "test": "cross-env NODE_ENV=test mocha -c -r tests/**/*.test.js --timeout 12000s --exit --require @babel/register",
     "clean": "rm -rf dist",
     "build": "npm run clean && babel ./src --out-dir dist --copy-files",
-    "prod": "node ./dist/bin/www.js"
+    "prod": "node ./dist/bin/www.js",
+    "migrate:up:test": "db-migrate up -e test -m migrations -v",
+    "migrate:reset:test": "db-migrate reset -e test -m migrations -v",
+    "migrate:up": "db-migrate up -e pg -m migrations -v"
   },
   "dependencies": {
+    "@babel/runtime": "^7.14.0",
     "@sendgrid/mail": "^7.4.2",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
@@ -22,6 +28,7 @@
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
+    "faker": "^5.5.3",
     "generate-password": "^1.6.0",
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
@@ -37,13 +44,19 @@
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14",
     "@babel/node": "^7.13.13",
+    "@babel/plugin-transform-runtime": "^7.13.15",
     "@babel/preset-env": "^7.13.12",
+    "@babel/register": "^7.13.16",
     "babel-plugin-module-resolver": "^4.1.0",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
+    "mocha": "^8.4.0",
     "prettier": "^2.2.1"
   }
 }

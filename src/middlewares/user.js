@@ -25,6 +25,7 @@ export const validateSignUp = async (req, res, next) => {
         await signupSchema.validateAsync(req.body);
         return next();
     } catch (error) {
+        console.log(error);
         return res.status(400).json({
             status: 'Fail',
             message: error.message

@@ -10,7 +10,7 @@ const { validateOtp } = userMiddlewares;
 
 const { validatePin, sendPinOTP, checkIfOTPHasExpired,
     validateAmount, checkIfUserHasActivatedWallet, validateRecipientUsername,
-    checkIfRecipientExists, validateTransfer, checkIfPinIsCorrect
+    checkIfRecipientExists, validateTransfer, checkIfPinIsCorrect, checkPageNumberAndLimit
 } = walletMiddlewares;
 
 const { createWalletWithPin, updateResetToken, confirmPinOTP, changePin, fundWallet,
@@ -30,7 +30,8 @@ walletRouter.post('/validate-receiver', validateRecipientUsername, checkIfRecipi
 walletRouter.post('/validate-amount', validateAmount, checkIfUserHasActivatedWallet, checkIfBalanceIsSufficient);
 walletRouter.post('/transfer', validateTransfer, checkIfUserHasActivatedWallet, checkIfPinIsCorrect, transferFunds);
 walletRouter.get('/balance', checkIfUserHasActivatedWallet, retrieveWalletBalance);
-walletRouter.get('/transaction-history', checkIfUserHasActivatedWallet, retrieveTransactionHistory);
-walletRouter.get('/filtered-transaction-history', checkIfUserHasActivatedWallet, retrieveFilteredTransactionHistory);
+walletRouter.get('/transaction-history', checkIfUserHasActivatedWallet, checkPageNumberAndLimit, retrieveTransactionHistory);
+walletRouter.post('/filtered-transaction-history', checkIfUserHasActivatedWallet, checkPageNumberAndLimit, retrieveFilteredTransactionHistory);
+walletRouter.post('/search-amount', checkIfUserHasActivatedWallet, )
 
 export default walletRouter;

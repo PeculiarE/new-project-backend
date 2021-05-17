@@ -7,6 +7,7 @@
           "alias": {
             "#routes": "./src/routes"
           }
-        }]
+        }],
+        ["@babel/transform-runtime"]
     ]
 }

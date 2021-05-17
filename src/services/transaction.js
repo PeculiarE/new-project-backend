@@ -29,18 +29,23 @@ export const addOrUpdateTransactionHistory = async (transactionId, userId) => {
         transactionArray, transactionId]);
 };
 
-export const getHistoryArrayByUserId = async (userId) => {
-    return db.manyOrNone(getTransactionHistoryArrayByUserId, [userId]);
+export const getHistoryArrayByUserId = async (userId, data) => {
+    const { page, limit } = data;
+    const offset = (page-1) * limit;
+    return db.manyOrNone(getTransactionHistoryArrayByUserId, [userId, limit, offset]);
 };
 
-export const getFilteredHistoryArrayByUserId = async (data, userId) => {
-    const { transactionType, startDate, endDate, transactionStatus } = data;
+export const getFilteredHistoryArrayByUserId = async (userId, data) => {
+    const { transactionType, startDate, endDate, transactionStatus, page, limit } = data;
     const realEndDate = `${endDate} 23:59:59`
+    const offset = (page-1) * limit;
     return db.manyOrNone(getFilteredTransactionHistoryArrayByUserId, [
         userId,
         startDate,
         realEndDate,
         transactionType,
-        transactionStatus
+        transactionStatus,
+        limit,
+        offset
     ]);   
 }

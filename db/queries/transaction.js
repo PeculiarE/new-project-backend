@@ -42,7 +42,9 @@ export const getTransactionHistoryArrayByUserId = `
     join transaction_history th
     on t.id = any(th.transactions)
     where user_id = $1
-    order by transaction_date desc; 
+    order by transaction_date desc
+    limit $2
+    offset $3; 
 `;
 
 export const getFilteredTransactionHistoryArrayByUserId = `
@@ -56,5 +58,7 @@ export const getFilteredTransactionHistoryArrayByUserId = `
     and t.updated_at between $2 and $3
     and transaction_type = $4
     and transaction_status = $5
-    order by transaction_date desc;
+    order by transaction_date desc
+    limit $6
+    offset $7;
 `;
