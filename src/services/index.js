@@ -4,11 +4,13 @@ import * as walletServices from './wallet';
 
 import { 
     // addSingleTransaction, addMultipleTransactions, addOrUpdateTransactionHistory,
-    getHistoryArrayByUserId, getFilteredHistoryArrayByUserId
+    getHistoryArrayByUserId, getFilteredHistoryArrayByUserId, searchByAmount,
+    getFilteredSearch
 } from './transaction';
 
 export {
     userServices, walletServices,
     // addSingleTransaction, addMultipleTransactions, addOrUpdateTransactionHistory,
-    getHistoryArrayByUserId, getFilteredHistoryArrayByUserId
+    getHistoryArrayByUserId, getFilteredHistoryArrayByUserId, searchByAmount,
+    getFilteredSearch
 };

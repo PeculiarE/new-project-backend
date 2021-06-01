@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS users (
   first_name VARCHAR NOT NULL,
   last_name VARCHAR NOT NULL,
   email VARCHAR UNIQUE NOT NULL,
-  country VARCHAR NOT NULL,
   dob VARCHAR NOT NULL,
   username VARCHAR UNIQUE NOT NULL,
   password_hash VARCHAR NOT NULL,

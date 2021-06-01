@@ -1,6 +1,5 @@
 /* Replace with your SQL commands */
 ALTER TABLE users
-ADD COLUMN country VARCHAR NOT NULL,
 DROP COLUMN IF EXISTS otp_hash,
 DROP COLUMN IF EXISTS otp_hash_sent,
 DROP COLUMN IF EXISTS phone_number,

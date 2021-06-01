@@ -3,6 +3,7 @@ import { insertSingleTransaction, insertMultipleTransactions,
     insertOrUpdateTransactionHistory,
     getTransactionHistoryArrayByUserId,
     getFilteredTransactionHistoryArrayByUserId,
+    searchTransactionAmount, getFilteredSearchResults
 } from '../../db/queries/transaction';
 import helperFunctions from '../utils';
 
@@ -41,6 +42,30 @@ export const getFilteredHistoryArrayByUserId = async (userId, data) => {
     const offset = (page-1) * limit;
     return db.manyOrNone(getFilteredTransactionHistoryArrayByUserId, [
         userId,
+        startDate,
+        realEndDate,
+        transactionType,
+        transactionStatus,
+        limit,
+        offset
+    ]);   
+}
+
+export const searchByAmount = async(userId, data) => {
+    const { page, limit, search } = data;
+    const amount = `${search}%`;
+    const offset = (page-1) * limit;
+    return db.manyOrNone(searchTransactionAmount, [userId, amount, limit, offset]);
+}
+
+export const getFilteredSearch = async (userId, data) => {
+    const { transactionType, startDate, endDate, transactionStatus, page, limit, search } = data;
+    const amount = `${search}%`;
+    const realEndDate = `${endDate} 23:59:59`
+    const offset = (page-1) * limit;
+    return db.manyOrNone(getFilteredSearchResults, [
+        userId,
+        amount,
         startDate,
         realEndDate,
         transactionType,

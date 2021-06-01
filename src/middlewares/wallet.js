@@ -162,7 +162,7 @@ export const checkIfPinIsCorrect = async (req, res, next) => {
 export const checkPageNumberAndLimit = async (req, res, next) => {
     try {
         const page = req.query.page ? Number(req.query.page) : 1;
-        const limit = req.query.limit ? Number(req.query.limit) : 5;
+        const limit = req.query.limit ? Number(req.query.limit) : 7;
         const pageData = {page, limit};
         req.pageData = pageData;
         return next();

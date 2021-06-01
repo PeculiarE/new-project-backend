@@ -1,6 +1,6 @@
 import helperFunctions from '../utils';
 import { walletServices, getHistoryArrayByUserId,
-    getFilteredHistoryArrayByUserId } from '../services';
+    getFilteredHistoryArrayByUserId, searchByAmount, getFilteredSearch } from '../services';
 
 const { hashInput } = helperFunctions;
 const { addWalletDetails, updatePinResetToken, retrieveWalletByUserId, updatePinResetStatus, updatePin,
@@ -224,8 +224,11 @@ export const retrieveTransactionHistory = async (req, res) => {
 
 export const retrieveFilteredTransactionHistory = async (req, res) => {
     try {
-        const data = { ...req.body, ...req.pageData };
-        const retrievedFilteredHistory = await getFilteredHistoryArrayByUserId(req.user.userId, data);
+        const search = (+req.query.search)*100;
+        const data = { ...req.body, ...req.pageData, search };
+        const retrievedFilteredHistory = req.query.search
+            ? await getFilteredSearch(req.user.userId, data)
+            : await getFilteredHistoryArrayByUserId(req.user.userId, data);
         retrievedFilteredHistory.forEach((el) => {
             el.amount = Number(el.amount)/100;
         });
@@ -242,3 +245,24 @@ export const retrieveFilteredTransactionHistory = async (req, res) => {
         }) 
     }
 };
+
+export const searchTransactionHistoryByAmount = async (req, res) => {
+    try {
+        const search = (+req.query.search)*100;
+        const searchResults = await searchByAmount(req.user.userId, { ...req.pageData, search });
+        searchResults.forEach((el) => {
+            el.amount = Number(el.amount)/100;
+        });
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Search results fetched successfully!',
+            data: searchResults
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: 'Something went wrong!'
+        }) 
+    }
+}

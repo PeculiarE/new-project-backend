@@ -1,5 +1,9 @@
+import dotenv from 'dotenv';
 import helperFunctions from '../utils';
 import { userServices } from '../services';
+import { testUsername } from '../../tests/fixtures/user';
+
+dotenv.config();
 
 const { hashInput, verifyInput, generateTokenForLogin,
     sendLinkEmail } = helperFunctions;
@@ -43,10 +47,11 @@ export const registerUser = async (req, res) => {
             confirmationToken: req.confirmationToken,
         };
         const addedUser = await addNewUser(user);
+        const testUser = { otp: req.OTP, token: req.confirmationToken };
         return res.status(201).json({
             status: 'Success',
             message: 'User has been signed up and OTP sent to their email',
-            data: addedUser,
+            data: process.env.NODE_ENV === 'test' ? testUser : addedUser
         });
     } catch (error) {
         console.log(error);
@@ -62,10 +67,11 @@ export const updateConfirmationToken = async (req, res) => {
         const hashedOTP = hashInput(req.OTP);
         const data = { hashedOTP, confirmationToken: req.confirmationToken }
         const updatedUser = await updateOtpHash(data, req.body.email);
+        const testUser = { otp: req.OTP, token: req.confirmationToken }
         return res.status(201).json({
             status: 'Success',
-            message: 'An OTP has been sent to your email for verification',
-            data: updatedUser
+            message: 'An OTP has been sent to user\'s email for verification',
+            data: process.env.NODE_ENV === 'test' ? testUser : updatedUser
         });
     } catch (error) {
         console.log(error);
@@ -105,7 +111,6 @@ export const loginUser = async (req, res) => {
         const { email, password } = req.body
         const user = await getSingleUserByEmail(email);
         if (user && user.is_confirmed && verifyInput(password, user.password_hash)) {
-            console.log(user);
             const loginToken = generateTokenForLogin({ email, userId: user.userid, firstName: user.firstname });
             return res.status(201).json({
                 status: 'Success',
@@ -135,11 +140,12 @@ export const loginUser = async (req, res) => {
 export const sendPasswordResetLink = async (req, res) => {
     try {
         const { email, firstname: firstName } = req.user;
-        await sendLinkEmail(req.body.email, firstName, req.passwordToken);
+        await sendLinkEmail(email, firstName, req.passwordToken);
         await updatePasswordResetToken(req.passwordToken, email);
         return res.status(201).json({
             status: 'Success',
             message: 'A link has been sent to your email for password reset',
+            ...(process.env.NODE_ENV === 'test') && {data: req.passwordToken}
         });
     } catch (error) {
         console.log(error);
@@ -153,7 +159,6 @@ export const sendPasswordResetLink = async (req, res) => {
 export const changePassword = async (req, res) => {
     try {
         const newPassword = hashInput(req.body.password);
-        console.log(req.user.email, newPassword);
         await updatePassword(newPassword, req.user.email);
         return res.status(201).json({
             status: 'Success',

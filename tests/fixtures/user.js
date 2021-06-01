@@ -1,19 +1,47 @@
 import faker from 'faker';
 
-export const testUsername = {
-    username: faker.internet.userName()
+export const testWrongUser = {
+    lastName: faker.name.lastName(),
+    email: faker.internet.email(),
+    dob: faker.date.past(),
+    username: faker.random.alphaNumeric(7),
+    phoneNumber: `${Math.ceil(1000000000 + Math.random()*90000000000)}`,
+    password: faker.internet.password()
 }
 
-export const testUser = {
+export const testRightUser = {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
     dob: faker.date.past(),
-    username: testUsername.username,
-    phoneNumber: faker.phone.phoneNumber(),
+    username: faker.random.alphaNumeric(7),
+    phoneNumber: faker.phone.phoneNumber('081########'),
     password: faker.internet.password()
 }
 
-export const testDuplicateUsername = {
-    username: testUsername.username
+export const testUsername = {
+    username: testRightUser.username
+}
+
+export const testDuplicateUser = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    email: testRightUser.email,
+    dob: faker.date.past(),
+    username: faker.random.alphaNumeric(7),
+    phoneNumber: faker.phone.phoneNumber('070########'),
+    password: faker.internet.password()
+}
+
+export const testVerifiedUser = {
+    email: testRightUser.email,
+    password: testRightUser.password
+}
+
+export const testFirstUserEmail = {
+    email: 'erhisoghenetega@gmail.com'
+}
+
+export const newPassword = {
+    password: faker.internet.password()
 }

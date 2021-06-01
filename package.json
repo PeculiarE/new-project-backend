@@ -6,7 +6,7 @@
     "prestart": "db-migrate up -e pg",
     "start": "babel-node ./src/bin/www.js",
     "pretest": "cross-env NODE_ENV=test && npm run migrate:reset:test && npm run migrate:up:test",
-    "test": "cross-env NODE_ENV=test mocha -c -r tests/**/*.test.js --timeout 12000s --exit --require @babel/register",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text --reporter=text-summary mocha -c -r tests/**/*.test.js --timeout 15000 --exit --require @babel/register",
     "clean": "rm -rf dist",
     "build": "npm run clean && babel ./src --out-dir dist --copy-files",
     "prod": "node ./dist/bin/www.js",
@@ -57,6 +57,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
     "prettier": "^2.2.1"
   }
 }

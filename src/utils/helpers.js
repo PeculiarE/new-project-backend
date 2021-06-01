@@ -81,10 +81,8 @@ export const sendOtpEmail = async (email, name, OTP, check) => {
     await sgMail
         .send(msg)
         .then((response) => {
-            console.log(response[0].statusCode)
-            console.log(response[0].headers)
+            console.log(response[0].statusCode);
         }).catch((error) => {
-            console.log(error);
             console.error(error);
         });
 };
@@ -96,9 +94,7 @@ export const sendLinkEmail = async (email, name, token) => {
         .send(msg)
         .then((response) => {
             console.log(response[0].statusCode)
-            console.log(response[0].headers)
         }).catch((error) => {
-            console.log(error);
             console.error(error);
         });
 };

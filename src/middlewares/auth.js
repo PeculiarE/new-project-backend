@@ -79,7 +79,7 @@ export const authenticateLoginToken = (req, res, next) => {
     } catch (error) {
         console.log(error);
         return res
-          .status(500)
-          .json({ status: 'Fail', message: 'Something went wrong' });
+          .status(401)
+          .json({ status: 'Fail', message: 'An authorization token is required' });
     }
   };

@@ -62,3 +62,33 @@ export const getFilteredTransactionHistoryArrayByUserId = `
     limit $6
     offset $7;
 `;
+
+export const searchTransactionAmount = `
+    select t.id as transaction_id, transaction_type, transaction_status,
+    t.updated_at as transaction_date, amount
+    from transactions t
+    join transaction_history th
+    on t.id = any(th.transactions)
+    where user_id = $1
+    and amount::text like $2
+    order by transaction_date desc
+    limit $3
+    offset $4;
+`;
+
+export const getFilteredSearchResults = `
+    select date_trunc('day', t.updated_at) as date_range,
+    t.id as transaction_id, transaction_type, transaction_status,
+    t.updated_at as transaction_date, amount
+    from transactions t
+    join transaction_history th
+    on t.id = any(th.transactions)
+    where user_id = $1
+    and amount::text like $2
+    and t.updated_at between $3 and $4
+    and transaction_type = $5
+    and transaction_status = $6
+    order by transaction_date desc
+    limit $7
+    offset $8;
+`;
