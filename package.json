@@ -6,7 +6,7 @@
     "prestart": "db-migrate up -e pg",
     "start": "babel-node ./src/bin/www.js",
     "pretest": "cross-env NODE_ENV=test && npm run migrate:reset:test && npm run migrate:up:test",
-    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text --reporter=text-summary mocha -c -r tests/**/*.test.js --timeout 15000 --exit --require @babel/register",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text --reporter=text-summary mocha -c -r tests/**/*.test.js --timeout 12000 --exit --require @babel/register",
     "clean": "rm -rf dist",
     "build": "npm run clean && babel ./src --out-dir dist --copy-files",
     "prod": "node ./dist/bin/www.js",

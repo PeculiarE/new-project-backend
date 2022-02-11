@@ -112,7 +112,7 @@ export const checkIfRecipientExists = async (req, res, next) => {
             req.receiver = user;
             return next();
         } else {
-            return res.status(409).json({
+            return res.status(404).json({
                 status: 'Fail',
                 message: 'Recipient not found'
             })
